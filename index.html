@@ -5,6 +5,10 @@
         <title>Webterm Test</title>
 
         <script src="https://cdn.jsdelivr.net/npm/p5@1.0.0/lib/p5.js"></script>
+
+        <link rel="stylesheet" href="uikit/css/uikit.min.css">
+        <script src="uikit/js/uikit.min.js"></script>
+        <script src="uikit/js/uikit-icons.min.js"></script>
         <link rel="stylesheet" href="styles.css">
 
     </head>
@@ -13,6 +17,73 @@
     <body>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src="circut.js"></script>
+
+
+
+        
+        <span class="uk-position-top-right uk-padding-right uk-icon-button uk-margin" type="button" uk-toggle="target: #offcanvas-flip" uk-icon="menu"></span>
+        
+
+
+
+        <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: false; bg-close: false;">
+            <div class="uk-offcanvas-bar">
+
+                <button class="uk-offcanvas-close" type="button" uk-close></button>
+
+                
+                <ul class="uk-subnav uk-subnav-pill" uk-switcher>
+                    <li><a href="#">Gates</a></li>
+                    <li><a href="#">Memory</a></li>
+                    <li><a href="#">I/O</a></li>
+                    <li><a href="#">Custom</a></li>
+                </ul>
+
+                <hr>
+                <ul class="uk-switcher uk-margin">
+                    <li>
+                        
+                        <ul class="uk-list">
+                            
+
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new NotGate(0,0);">NOT</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new OrGate(0,0);">OR</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new AndGate(0,0);">AND</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new XORGate(0,0);">XOR</button>
+                            </li>
+                            
+                            
+                        </ul>
+                        
+                    </li>
+                    <li>
+                        
+
+                    </li>
+                    <li>
+                        <ul class="uk-list">
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new PIN(0,0);">PIN Input</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);">PIN Output</button>
+                            </li>
+                        </ul>
+
+                    </li>
+                </ul>
+                
+
+            </div>
+        </div>
+
     </body>
 
 
