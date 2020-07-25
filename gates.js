@@ -72,10 +72,18 @@ class Gate{
     drawfordrag(){}
     draw(overlay){}
     cleanup(){
-        this.inpNodes=undefined;
-        this.outNodes=undefined;
-        gates.splice(gates.indexOf(this));
-        delete this;
+        //this.inpNodes=undefined;
+        //this.outNodes=undefined;
+        
+        
+        var chunk = getMChunk();
+        if(chunk.indexOf(this)==-1){
+            return;
+        }else{
+            chunk.splice(chunk.indexOf(this),1);
+        }
+        
+        //delete this;
     }
     update(){
         //this.needsUpdate||fullRedraw
@@ -125,13 +133,30 @@ class Wire extends Gate{
         this.finalize(this.x2,this.y2);
         
     }
+    cleanup(){
+        //this.inpNodes=undefined;
+        //this.outNodes=undefined;
+        
+        
+        wires.splice(wires.indexOf(this));
+        this.nodeA.wires.splice(this.nodeA.wires.indexOf(this));
+        if(this.finalized)
+        this.nodeB.wires.splice(this.nodeB.wires.indexOf(this));
+    }
+    gethbox(){
+        if(this.finalized){
+            this.hboxh=(this.nodeB.y-this.nodeA.y);
+            this.hboxw=(this.nodeB.x-this.nodeA.x);
+            return this.hboxh/this.hboxw;
+        }
+        return [0,0,0,0];
+    }
 
     finalize(x,y){
         this.x2=x;
         this.y2=y;
         this.finalized=true;
-        this.hboxh=abs(this.y-this.y2);
-        this.hboxw=abs(this.x-this.x2);
+        
         if(this.nodeB == undefined){
             this.nodeB = new Node(this.x2,this.y2,this,"wire");
         }
@@ -153,7 +178,8 @@ class Wire extends Gate{
             }else{
                 stroke(255,0,0);
             }
-            line(this.tmpx/scalar,this.tmpy/scalar,mouseX,mouseY);
+            
+            line(this.nodeA.x+translationx/scalar,this.nodeA.y+translationy/scalar,mouseX/scalar,mouseY/scalar);
             strokeWeight(1);
         }else{
             
@@ -174,6 +200,8 @@ class Wire extends Gate{
             }else{
                 overlay.stroke(255,0,0);
             }
+            //var h = this.gethbox();
+            //overlay.rect(h[0],h[1],h[2],h[3]);
             overlay.line(this.nodeA.x,this.nodeA.y,this.nodeB.x,this.nodeB.y);
             overlay.strokeWeight(1);
             overlay.stroke(0);
@@ -521,7 +549,9 @@ class LED extends Gate{
     }
 
 }
+class WireNode extends Gate{
 
+}
 
 
 

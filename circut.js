@@ -5,17 +5,26 @@ var wires = []; //holds pointers to wires also in gates
 function setup(){
     background(255);
     createCanvas(document.body.clientWidth,document.body.clientHeight);
-    bg = createGraphics(overall_dim,overall_dim);
-    bg.background(bg_gscale);
+    //bg = createGraphics(overall_dim,overall_dim);
+    //bg.background(bg_gscale);
     overlay = createGraphics(overall_dim,overall_dim);
-    overlay.background(0,0,0,0);
+    overlay.background(bg_gscale);
     overlay.fill(255);
     textSize(25);
     //overlay.ellipse(5000,5000,50,50);
     for(var i = 0; i < overall_dim/100; i++){
         gates.push([]);
     }
+
 }
+
+
+function getMChunk(){
+    var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
+    var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+    return gates[indx+indy*10];
+}
+
 
 function draw(){
     background(0);
@@ -23,15 +32,16 @@ function draw(){
     push();
     translate(translationx,translationy);
     scale(scalar);
-    image(bg,0,0);
+    //image(bg,0,0);
     overlay.fill(255,0,0,0);
     overlay.strokeWeight(25);
-
+    
     for(var i = 0 ; i < 10;i++){
         for(var j = 0 ; j < 10;j++){
             overlay.rect(i*overall_dim/10,j*overall_dim/10,overall_dim/10,overall_dim/10);
         }
     }
+    
     overlay.strokeWeight(1);
     image(overlay,0,0);
     
@@ -40,11 +50,20 @@ function draw(){
 
     if(fullRedraw){
         overlay.background(bg_gscale);
+        console.log("full-redraw was needed");
     }
 
     for(var gatechunk in gates){
         for(var gate in gates[gatechunk]){
+            if(gates[gatechunk][gate]!=undefined)
             gates[gatechunk][gate].update();
+        }
+    }
+    for(var wire in wires){
+        if(wires[wire].finalized){
+            wires[wire].update();
+        }else{
+            wires[wire].draw();
         }
     }
     if(fullRedraw){
@@ -97,6 +116,9 @@ function handleMouseOverNodes(){
     var mx = (-translationx/scalar+mouseX/scalar);
     var my = (-translationy/scalar+mouseY/scalar);
     for(var g in gates[indx+indy*10]){
+        if(gates[indx+indy*10][g]==undefined){
+            continue;
+        }
         var hbox = gates[indx+indy*10][g].gethbox();
         var x = hbox[0];
         var y = hbox[1];
@@ -130,7 +152,10 @@ function handleMouseOverNodes(){
 }
 
 function placeGate(gate){
-    
+    if(gate.isWire){
+        gate.place();
+        return;
+    }
     var indx = int(gate.x/(overall_dim/10));
     var indy = int(gate.y/(overall_dim/10));
     gates[indx+indy*10].push(gate);
@@ -139,12 +164,18 @@ function placeGate(gate){
         wires[wire].needsUpdate = true;
     }
     fullRedraw=true;
+    
 
 }
 function mousePressed(){
 
     if(mouseButton === RIGHT){
+        if(circutInHand==undefined){
+            return;
+        }
         circutInHand.cleanup();
+        circutInHand.inpNodes=[];
+        circutInHand.outNodes=[];
         circutInHand = undefined;
         nodeInHand = undefined;
         _mode_ = CursorModes.MOVEMENT;
@@ -187,8 +218,7 @@ function mouseReleased(){
         var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
         var mx = (-translationx/scalar+mouseX/scalar);
         var my = (-translationy/scalar+mouseY/scalar);
-        console.log(indx+" : "+indy);
-        console.log(gates[indx+indy*10]);
+
         for(var g in gates[indx+indy*10]){
             var hbox = gates[indx+indy*10][g].gethbox();
             var x = hbox[0];
@@ -199,9 +229,31 @@ function mouseReleased(){
                 _mode_ = CursorModes.EDIT;
                 circutInHand = gates[indx+indy*10][g];
                 fullRedraw = true;
-                gates[indx+indy*10].slice(g);
+                circutInHand.cleanup();
+                return;
             }
         }
+
+        for(var wire in wires){
+            
+            var x1 = wires[wire].nodeA.x;
+            var y1 = wires[wire].nodeA.y;
+            var x2 = wires[wire].nodeB.x;
+            var y2 = wires[wire].nodeB.y;
+            var distance = dist(x1,y1,x2,y2);
+            var mda = dist(mx,my,x1,y1);
+            var mdb = dist(mx,my,x2,y2);
+            if(mda+mdb < distance + wire_click_slack){
+                _mode_ = CursorModes.EDIT;
+                circutInHand = wires[wire];
+                fullRedraw = true;
+                circutInHand.cleanup();
+                return;
+            }
+        }
+
+    
+
     }else if (nodeInHand!=undefined && circutInHand==undefined){
         var nw = new Wire(nodeInHand.x,nodeInHand.y);
         nw.tmpx=mouseX;
@@ -247,6 +299,5 @@ function keyPressed(){
         nodeInHand.gate.value=nodeInHand.value;
         nodeInHand.gate.needsUpdate = true;
         nodeInHand.updateWires();
-        console.log(nodeInHand);
     }
 }

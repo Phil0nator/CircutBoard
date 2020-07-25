@@ -22,9 +22,16 @@
 
 
 
-        
-        <span class="uk-position-top-right uk-padding-right uk-icon-button uk-margin" type="button" uk-toggle="target: #offcanvas-flip" uk-icon="menu"></span>
-        
+        <div class="uk-flex uk-background-secondary uk-position-absolute">
+            <ul class="uk-list uk-padding-small">
+                <li>
+                    <span class="uk-icon-button uk-margin" type="button" uk-toggle="target: #offcanvas-flip" uk-tooltip="title: Placeables; pos: right" uk-icon="menu"></span>
+                </li>
+                <li>
+                    <span class="uk-icon-button uk-margin" uk-tooltip="title: New Integrated Circut; pos: right" type="button" uk-icon="plus"></span>
+                </li>
+            </ul>
+        </div>
 
 
 
@@ -47,7 +54,9 @@
                         
                         <ul class="uk-list">
                             
-
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new WireNode(0,0);">WireNode (WIP)</button>
+                            </li>
                             <li>
                                 <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new NotGate(0,0);">NOT</button>
                             </li>
