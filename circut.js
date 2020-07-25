@@ -24,8 +24,20 @@ function draw(){
     translate(translationx,translationy);
     scale(scalar);
     image(bg,0,0);
+    overlay.fill(255,0,0,0);
+    overlay.strokeWeight(25);
+
+    for(var i = 0 ; i < 10;i++){
+        for(var j = 0 ; j < 10;j++){
+            overlay.rect(i*overall_dim/10,j*overall_dim/10,overall_dim/10,overall_dim/10);
+        }
+    }
+    overlay.strokeWeight(1);
     image(overlay,0,0);
     
+
+    
+
     if(fullRedraw){
         overlay.background(bg_gscale);
     }

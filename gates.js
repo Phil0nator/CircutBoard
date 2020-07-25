@@ -16,8 +16,8 @@ class Node{
         for(var wire in this.wires){
             this.wires[wire].needsUpdate=true;
             
-            this.wires[wire].inputs[0] = this.value;
-            
+            //this.wires[wire].inputs[0] = this.value;
+            this.wires[wire].value = this.value;
         }
         this.gate.needsUpdate=true;
         if(this.wires[0] != undefined){
@@ -78,7 +78,8 @@ class Gate{
         delete this;
     }
     update(){
-        if(this.needsUpdate||fullRedraw){
+        //this.needsUpdate||fullRedraw
+        if(true){
             for(var node in this.inpNodes){
                 this.inputs[node] = this.inpNodes[node].value;
                 
@@ -95,6 +96,9 @@ class Gate{
                 this.outNodes[node].draw();
                 this.outNodes[node].value = this.outputs[node];
                 this.outNodes[node].updateWires();
+            }
+            if(!fullRedraw){
+                fullRedraw=true;
             }
 
             this.needsUpdate=false;
