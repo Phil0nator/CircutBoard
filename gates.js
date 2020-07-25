@@ -1,19 +1,28 @@
 
 class Node{
 
-    constructor(x,y, g){
+    constructor(x,y,g,isInput){
         this.x=x;
         this.y=y;
         this.value=false;
-        this.input;
-        this.output;
         this.mouseIsOver = false;
         this.gate =g;
-        
+        this.wires = [];
+        this.isInput = isInput;
+
     }
 
     updateWires(){
-        this.wire.needsUpdate=true;
+        for(var wire in this.wires){
+            this.wires[wire].needsUpdate=true;
+            
+            this.wires[wire].inputs[0] = this.value;
+            
+        }
+        this.gate.needsUpdate=true;
+        if(this.wires[0] != undefined){
+            this.value = this.wires[0].value;
+        }
     }
 
     draw(){
@@ -62,7 +71,12 @@ class Gate{
     }
     drawfordrag(){}
     draw(overlay){}
-
+    cleanup(){
+        this.inpNodes=undefined;
+        this.outNodes=undefined;
+        gates.splice(gates.indexOf(this));
+        delete this;
+    }
     update(){
         if(this.needsUpdate||fullRedraw){
             for(var node in this.inpNodes){
@@ -75,10 +89,12 @@ class Gate{
             this.draw(overlay);
             for(var node in this.inpNodes){
                 this.inpNodes[node].draw();
+                this.inpNodes[node].updateWires();
             }
             for (var node in this.outNodes){
                 this.outNodes[node].draw();
                 this.outNodes[node].value = this.outputs[node];
+                this.outNodes[node].updateWires();
             }
 
             this.needsUpdate=false;
@@ -113,26 +129,32 @@ class Wire extends Gate{
         this.hboxh=abs(this.y-this.y2);
         this.hboxw=abs(this.x-this.x2);
         if(this.nodeB == undefined){
-            this.nodeB = new Node(this.x2,this.y2,this);
+            this.nodeB = new Node(this.x2,this.y2,this,"wire");
         }
     }
 
     passthrough(){
         this.outputs[0]=this.inputs[0];
         this.value = this.inputs[0];
+        this.nodeB.value = this.nodeA.value;
+        this.nodeB.updateWires();
     }
     drawfordrag(){
         scale(scalar);
 
-        if(this.finalized != true){
+        if(true){
             strokeWeight(5);
             if(this.value){
                 stroke(0,255,0);
             }else{
                 stroke(255,0,0);
             }
-            line(this.tmpx,this.tmpy,mouseX,mouseY);
+            line(this.tmpx/scalar,this.tmpy/scalar,mouseX,mouseY);
             strokeWeight(1);
+        }else{
+            
+
+
         }
     }
 
@@ -179,8 +201,8 @@ class NotGate extends Gate{
 
     place(){
         if(this.inpNodes[0] == undefined){
-            this.inpNodes = [new Node(this.x,this.y+25, this)];
-            this.outNodes = [new Node(this.x+50,this.y+25, this)];
+            this.inpNodes = [new Node(this.x,this.y+25, this,true)];
+            this.outNodes = [new Node(this.x+50,this.y+25, this,false)];
         }else{
             this.inpNodes[0].x = this.x;this.inpNodes[0].y=this.y+25;
             this.outNodes[0].x=this.x+50;this.outNodes[0].y=this.y+25;
@@ -224,8 +246,14 @@ class OrGate extends Gate{
         this.hboxw = OrGatew;
     }
     place(){
-        this.inpNodes = [new Node(this.x+10,this.y-15, this), new Node(this.x+10,this.y+15, this)];
-        this.outNodes = [new Node(this.x+OrGatew/2,this.y, this)];
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new Node(this.x+10,this.y-15, this,true), new Node(this.x+10,this.y+15, this,true)];
+            this.outNodes = [new Node(this.x+OrGatew/2,this.y, this,false)];
+        }else{
+            this.inpNodes[0].x = this.x+10;this.inpNodes[0].y = this.y-15;
+            this.inpNodes[1].x = this.x+10;this.inpNodes[1].y=this.y+15;
+            this.outNodes[0].x=this.x+OrGatew/2;this.outNodes[0].y=this.y;
+        }
     }
     passthrough(){
 
@@ -271,8 +299,14 @@ class AndGate extends Gate{
         this.hboxh = 60;
     }
     place(){
-        this.inpNodes = [new Node(this.x,this.y-15, this), new Node(this.x,this.y+15, this)];
-        this.outNodes = [new Node(this.x+OrGatew/2,this.y, this)];
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new Node(this.x,this.y-15, this,true), new Node(this.x,this.y+15, this,true)];
+            this.outNodes = [new Node(this.x+OrGatew/2,this.y, this,false)];
+        }else{
+            this.inpNodes[0].x = this.x; this.inpNodes[0].y = this.y-15;
+            this.inpNodes[1].x = this.x; this.inpNodes[1].y=this.y+15;
+            this.outNodes[0].x=this.x+OrGatew/2;this.outNodes[0].y=this.y;
+        }
     }
     passthrough(){
 
@@ -316,8 +350,14 @@ class XORGate extends Gate{
         this.hboxh = 60;
     }
     place(){
-        this.inpNodes = [new Node(this.x+10,this.y-15, this), new Node(this.x+10,this.y+15, this)];
-        this.outNodes = [new Node(this.x+OrGatew/2,this.y, this)];
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new Node(this.x+10,this.y-15, this,true), new Node(this.x+10,this.y+15, this,true)];
+            this.outNodes = [new Node(this.x+OrGatew/2,this.y, this,false)];
+        }else{
+            this.inpNodes[0].x = this.x+10;this.inpNodes[0].y = this.y-15;
+            this.inpNodes[1].x = this.x+10;this.inpNodes[1].y=this.y+15;
+            this.outNodes[0].x=this.x+OrGatew/2;this.outNodes[0].y=this.y;
+        }
     }
 
     passthrough(){
@@ -367,11 +407,16 @@ class XORGate extends Gate{
 class PIN extends Gate{
     constructor(x,y){
         super(x,y);
-        this.hboxw = node_r*2;
-        this.hboxh = node_r*2;
+        this.hboxw = node_r*4;
+        this.hboxh = node_r*4;
+        this.isInputPin = true;
     }
     place(){
-        this.outNodes = [new Node(this.x+10,this.y+10, this)];
+        if(this.outNodes[0] == undefined){
+            this.outNodes = [new Node(this.x+10,this.y+10, this,false)];
+        }else{
+            this.outNodes[0].x=this.x+node_r;this.outNodes[0].y=this.y+node_r;
+        }
     }
 
     passthrough(){
@@ -423,14 +468,21 @@ class PIN extends Gate{
 class LED extends Gate{
     constructor(x,y){
         super(x,y);
-        this.hboxw = node_r*2;
-        this.hboxh = node_r*2;
+        this.hboxw = node_r*4;
+        this.hboxh = node_r*4;
     }
     place(){
-        this.inpNodes = [new Node(this.x+10,this.y+10, this)];
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new Node(this.x+10,this.y+10, this,true)];
+        }else{
+            this.inpNodes[0].x=this.x+node_r;
+            this.inpNodes[0].y= this.y+node_r;
+        }
     }
     passthrough(){
         this.value = this.inputs[0];
+        if(this.inpNodes[0]!=undefined)
+        this.value = this.inpNodes[0].value;
     }
 
     drawfordrag(){

@@ -45,9 +45,12 @@ function draw(){
     //HUD
 
 
+
+
     fill(0);
-    text("Mode: "+_mode_,0,25);
-    text("Gates: "+gates.length,0,50);
+    if(nodeInHand!=undefined)
+    text("V: "+nodeInHand.value,0,25);
+
 
     if(circutInHand!=undefined){
         var hbox = circutInHand.gethbox();
@@ -78,7 +81,7 @@ function handleMouseOverNodes(){
 
     
     var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-    var indy = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
+    var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
     var mx = (-translationx/scalar+mouseX/scalar);
     var my = (-translationy/scalar+mouseY/scalar);
     for(var g in gates[indx+indy*10]){
@@ -129,9 +132,11 @@ function placeGate(gate){
 function mousePressed(){
 
     if(mouseButton === RIGHT){
-        
+        circutInHand.cleanup();
         circutInHand = undefined;
         nodeInHand = undefined;
+        _mode_ = CursorModes.MOVEMENT;
+        fullRedraw=true;
         return;
     }
 
@@ -146,6 +151,7 @@ function mousePressed(){
             circutInHand.finalized=true;
             if(nodeInHand!=undefined){
                 circutInHand.nodeB = nodeInHand;
+                circutInHand.nodeB.wires.push(circutInHand);
             }
             
         }else{
@@ -161,11 +167,16 @@ function mousePressed(){
 }
 function mouseReleased(){
     dragog = [];
+    if(mouseButton === RIGHT){
+        return;
+    }
     if(circutInHand==undefined&&nodeInHand==undefined){
         var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-        var indy = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
+        var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
         var mx = (-translationx/scalar+mouseX/scalar);
         var my = (-translationy/scalar+mouseY/scalar);
+        console.log(indx+" : "+indy);
+        console.log(gates[indx+indy*10]);
         for(var g in gates[indx+indy*10]){
             var hbox = gates[indx+indy*10][g].gethbox();
             var x = hbox[0];
@@ -176,7 +187,7 @@ function mouseReleased(){
                 _mode_ = CursorModes.EDIT;
                 circutInHand = gates[indx+indy*10][g];
                 fullRedraw = true;
-                delete gates[indx+indy*10][g];
+                gates[indx+indy*10].slice(g);
             }
         }
     }else if (nodeInHand!=undefined && circutInHand==undefined){
@@ -184,7 +195,7 @@ function mouseReleased(){
         nw.tmpx=mouseX;
         nw.tmpy=mouseY;
         nw.nodeA = nodeInHand;
-        nodeInHand.wire=nw;
+        nodeInHand.wires.push(nw);
         circutInHand = nw;
         
     }else if (nodeInHand!=undefined && circutInHand!=undefined){
@@ -195,6 +206,9 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 function mouseWheel(event) {
+    if(_mode_ == CursorModes.EDIT){
+        return;
+    }
     scalar-=5/event.delta;
     if(scalar >= 0){
         var d = 5/event.delta;
@@ -216,5 +230,11 @@ function handleEdit(){
 
 
 function keyPressed(){
-    
+    if(nodeInHand.gate.isInputPin){
+        nodeInHand.value = !nodeInHand.value;
+        nodeInHand.gate.value=nodeInHand.value;
+        nodeInHand.gate.needsUpdate = true;
+        nodeInHand.updateWires();
+        console.log(nodeInHand);
+    }
 }
