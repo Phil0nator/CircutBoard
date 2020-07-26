@@ -28,7 +28,7 @@
                     <span class="uk-icon-button uk-margin" type="button" uk-toggle="target: #offcanvas-flip" uk-tooltip="title: Placeables; pos: right" uk-icon="menu"></span>
                 </li>
                 <li>
-                    <span class="uk-icon-button uk-margin" uk-tooltip="title: New Integrated Circut; pos: right" type="button" uk-icon="plus"></span>
+                    <span class="uk-icon-button uk-margin" uk-tooltip="title: New Integrated Circut; pos: right" type="button" onclick="startIntegrationMode();" uk-icon="plus"></span>
                 </li>
             </ul>
         </div>
@@ -55,19 +55,19 @@
                         <ul class="uk-list">
                             
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new WireNode(0,0);">WireNode (WIP)</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new WireNode(0,0);cursor('grab');">WireNode</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new NotGate(0,0);">NOT</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new NotGate(0,0);cursor('grab');">NOT</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new OrGate(0,0);">OR</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new OrGate(0,0);cursor('grab');">OR</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new AndGate(0,0);">AND</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new AndGate(0,0);cursor('grab');">AND</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new XORGate(0,0);">XOR</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new XORGate(0,0);cursor('grab');">XOR</button>
                             </li>
                             
                             
@@ -75,19 +75,35 @@
                         
                     </li>
                     <li>
-                        
+                        <ul class="uk-list">
+
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">FILE ROM</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">ROM</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">S-R FLIP FLOP</button>
+                            </li>
+                        </ul>
 
                     </li>
                     <li>
                         <ul class="uk-list">
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new PIN(0,0);">PIN Input</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new PIN(0,0);cursor('grab');">PIN Input</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);">PIN Output</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);cursor('grab');">PIN Output</button>
                             </li>
                         </ul>
 
+                    </li>
+                    <li>
+                        <ul class="uk-list" id = "custom_circuts_list">
+
+                        </ul>
                     </li>
                 </ul>
                 

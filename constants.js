@@ -1,4 +1,4 @@
-const overall_dim = 10000;
+const overall_dim = 5000;
 const node_color = [50,100,255];
 const node_mover = [100,150,255];
 const bg_gscale = 150;

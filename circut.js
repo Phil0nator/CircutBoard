@@ -12,7 +12,7 @@ function setup(){
     overlay.fill(255);
     textSize(25);
     //overlay.ellipse(5000,5000,50,50);
-    for(var i = 0; i < overall_dim/100; i++){
+    for(var i = 0; i < 100; i++){
         gates.push([]);
     }
 
@@ -34,15 +34,16 @@ function draw(){
     scale(scalar);
     //image(bg,0,0);
     overlay.fill(255,0,0,0);
-    overlay.strokeWeight(25);
-    
+    //overlay.strokeWeight(25);
+    /*
     for(var i = 0 ; i < 10;i++){
         for(var j = 0 ; j < 10;j++){
             overlay.rect(i*overall_dim/10,j*overall_dim/10,overall_dim/10,overall_dim/10);
         }
     }
+    */
     
-    overlay.strokeWeight(1);
+    //overlay.strokeWeight(1);
     image(overlay,0,0);
     
 
@@ -63,7 +64,7 @@ function draw(){
         if(wires[wire].finalized){
             wires[wire].update();
         }else{
-            wires[wire].draw();
+            wires[wire].draw(undefined);
         }
     }
     if(fullRedraw){
@@ -78,9 +79,7 @@ function draw(){
 
 
 
-    fill(0);
-    if(nodeInHand!=undefined)
-    text("V: "+nodeInHand.value,0,25);
+    
 
 
     if(circutInHand!=undefined){
@@ -132,6 +131,7 @@ function handleMouseOverNodes(){
                     if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r){
                         nodeInHand = allnodes[i][node];
                         nodeInHand.mouseIsOver = true;
+                        cursor(HAND);
                         return;
                     }
                 }
@@ -146,6 +146,9 @@ function handleMouseOverNodes(){
     if(nodeInHand!=undefined){
         nodeInHand.mouseIsOver=false;
         nodeInHand.needsUpdate = true;
+    }
+    if(circutInHand==undefined){
+        cursor(ARROW);
     }
     nodeInHand = undefined;
 
@@ -206,13 +209,17 @@ function mousePressed(){
         placeGate(circutInHand);
         _mode_ = CursorModes.MOVEMENT;
         circutInHand = undefined;
+        cursor(ARROW);
     }
 }
 function mouseReleased(){
     dragog = [];
-    if(mouseButton === RIGHT){
+    if(mouseButton === RIGHT || _mode_ == CursorModes.INTEGRATE){
         return;
     }
+    /*
+    TODO: Occasional misdetection when circuts are placed on the line between chunks
+    */
     if(circutInHand==undefined&&nodeInHand==undefined){
         var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
         var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
@@ -230,6 +237,7 @@ function mouseReleased(){
                 circutInHand = gates[indx+indy*10][g];
                 fullRedraw = true;
                 circutInHand.cleanup();
+                cursor('grab');
                 return;
             }
         }
@@ -248,6 +256,8 @@ function mouseReleased(){
                 circutInHand = wires[wire];
                 fullRedraw = true;
                 circutInHand.cleanup();
+                cursor('grab');
+
                 return;
             }
         }
@@ -294,10 +304,27 @@ function handleEdit(){
 
 
 function keyPressed(){
-    if(nodeInHand.gate.isInputPin){
-        nodeInHand.value = !nodeInHand.value;
-        nodeInHand.gate.value=nodeInHand.value;
-        nodeInHand.gate.needsUpdate = true;
-        nodeInHand.updateWires();
+    if(keyCode == 32){
+        if(nodeInHand.gate.isInputPin){
+            nodeInHand.value = !nodeInHand.value;
+            nodeInHand.gate.value=nodeInHand.value;
+            nodeInHand.gate.needsUpdate = true;
+            nodeInHand.updateWires();
+        }
     }
+    if(keyCode == UP_ARROW){
+        var inp = new Object();
+        inp.delta = -53;
+        mouseWheel(inp);
+    }else if(keyCode == DOWN_ARROW){
+        var inp = new Object();
+        inp.delta = +53;
+        mouseWheel(inp);
+    }
+}
+
+
+function startIntegrationMode(){
+    cursor(CROSS);
+    _mode_ = CursorModes.INTEGRATE;
 }

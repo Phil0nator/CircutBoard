@@ -551,6 +551,51 @@ class LED extends Gate{
 }
 class WireNode extends Gate{
 
+    constructor(x,y){
+        super(x,y);
+        this.hboxh = 60;
+        this.hboxw = 60;
+        
+    }
+
+    place(){
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new Node(this.x,this.y+25, this,true)];
+            this.outNodes = [new Node(this.x+50,this.y+25, this,false)];
+        }else{
+            this.inpNodes[0].x = this.x;this.inpNodes[0].y=this.y+25;
+            this.outNodes[0].x=this.x+50;this.outNodes[0].y=this.y+25;
+        }
+    }
+
+    passthrough(){
+
+
+        this.outputs[0]=this.inputs[0];
+
+    }
+
+    drawfordrag(){
+        scale(scalar);
+
+        fill(255);
+        rect(this.x,this.y,50,50);
+        //triangle(this.x,this.y,this.x,this.y+50,this.x+50,this.y+25);
+        
+    }
+
+    draw(overlay){
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+        overlay.fill(255);
+        overlay.rect(this.x,this.y,50,50);
+        //overlay.triangle(this.x,this.y,this.x,this.y+50,this.x+50,this.y+25);
+        
+
+    }
+
 }
 
 
