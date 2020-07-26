@@ -10,6 +10,7 @@ function setup(){
     overlay = createGraphics(overall_dim,overall_dim);
     overlay.background(bg_gscale);
     overlay.fill(255);
+    overlay.smooth(8);
     textSize(25);
     //overlay.ellipse(5000,5000,50,50);
     for(var i = 0; i < 100; i++){
