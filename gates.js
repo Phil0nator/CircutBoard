@@ -56,6 +56,9 @@ class Gate{
 
 
     }
+    copy(){
+        return new Gate(this.x,this.y);
+    }
     place(){}
     gethbox(){
         var out = new Array(4);
@@ -127,6 +130,7 @@ class Wire extends Gate{
     constructor(x,y){
         super(x,y);
         this.isWire = true;
+        if(this.x!=undefined&&this.y!=undefined)
         wires.push(this);
     }
     place(){
@@ -241,6 +245,12 @@ class NotGate extends Gate{
         }
     }
 
+    copy(){
+        var out = new NotGate(this.x,this.y);
+        out.place();
+        return out;
+    }
+
     passthrough(){
 
 
@@ -276,6 +286,11 @@ class OrGate extends Gate{
         super(x,y);
         this.hboxh = 60;
         this.hboxw = OrGatew;
+    }
+    copy(){
+        var out = new OrGate(this.x,this.y);
+        out.place();
+        return out;
     }
     place(){
         if(this.inpNodes[0] == undefined){
@@ -330,6 +345,11 @@ class AndGate extends Gate{
         this.hboxw = OrGatew;
         this.hboxh = 60;
     }
+    copy(){
+        var out = new AndGate(this.x,this.y);
+        out.place();
+        return out;
+    }
     place(){
         if(this.inpNodes[0] == undefined){
             this.inpNodes = [new Node(this.x,this.y-15, this,true), new Node(this.x,this.y+15, this,true)];
@@ -380,6 +400,11 @@ class XORGate extends Gate{
         super(x,y);
         this.hboxw = OrGatew;
         this.hboxh = 60;
+    }
+    copy(){
+        var out = new XORGate(this.x,this.y);
+        out.place();
+        return out;
     }
     place(){
         if(this.inpNodes[0] == undefined){
@@ -443,6 +468,7 @@ class PIN extends Gate{
         this.hboxh = node_r*4;
         this.isInputPin = true;
     }
+    
     place(){
         if(this.outNodes[0] == undefined){
             this.outNodes = [new Node(this.x+10,this.y+10, this,false)];
@@ -502,6 +528,7 @@ class LED extends Gate{
         super(x,y);
         this.hboxw = node_r*4;
         this.hboxh = node_r*4;
+        this.isLEDOut = true;
     }
     place(){
         if(this.inpNodes[0] == undefined){
@@ -557,6 +584,11 @@ class WireNode extends Gate{
         this.hboxw = 60;
         
     }
+    copy(){
+        var out = new WireNode(this.x,this.y);
+        out.place();
+        return out;
+    }
 
     place(){
         if(this.inpNodes[0] == undefined){
@@ -598,5 +630,14 @@ class WireNode extends Gate{
 
 }
 
+class IntegratedCircut{
 
+    constructor(){
+        this.gates= [];
+        this.wires = [];
+        this.inputs = [];
+        this.outputs = [];
+    }
+
+}
 

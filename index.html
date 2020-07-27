@@ -19,7 +19,7 @@
         <script src="constants.js"></script>
         <script src="gates.js"></script>
         <script src="circut.js"></script>
-
+        <script src="Generation.js" ></script>
 
 
         <div class="uk-flex uk-background-secondary uk-position-absolute">
@@ -109,6 +109,39 @@
                 
 
             </div>
+        </div>
+
+
+
+
+        <div id="integratedCircutConfig" class="uk-modal uk-modal-container" uk-modal="bg-close:false;">
+            <div class="uk-modal-dialog">
+
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+        
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Integrated Circut</h2>
+                </div>
+        
+                <div class="uk-modal-body  uk-grid" uk-overflow-auto>
+                    
+                    <div id="icc-infoform ">
+                        <input class="uk-input uk-width-1 uk-column-1" type="text" placeholder="New Circut Name"></input>
+                        
+                        <button class="uk-button uk-button-default uk-column-1 uk-width-1 uk-margin "> Generate Truth Table </button> 
+                    </div>
+                    <div id="icc-main">
+
+                    </div>
+                </div>
+        
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
+                    <button class="uk-button uk-button-primary" type="button">Save</button>
+                </div>
+        
+            </div>
+                
         </div>
 
     </body>

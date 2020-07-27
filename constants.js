@@ -28,3 +28,7 @@ var circutInHand = undefined;
 var nodeInHand = undefined;
 
 var fullRedraw = false;
+
+
+var integrationArea = [];
+var workingIntegrationCircut;

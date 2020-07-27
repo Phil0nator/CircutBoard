@@ -10,7 +10,6 @@ function setup(){
     overlay = createGraphics(overall_dim,overall_dim);
     overlay.background(bg_gscale);
     overlay.fill(255);
-    overlay.smooth(8);
     textSize(25);
     //overlay.ellipse(5000,5000,50,50);
     for(var i = 0; i < 100; i++){
@@ -25,6 +24,18 @@ function getMChunk(){
     var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
     return gates[indx+indy*10];
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function draw(){
@@ -103,10 +114,38 @@ function draw(){
         circutInHand.draw(undefined);
     }
 
+    if(_mode_ == CursorModes.INTEGRATE){
+        drawIntegrationArea();
+    }
+
     handleMouseOverNodes();
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function handleMouseOverNodes(){
 
@@ -148,12 +187,33 @@ function handleMouseOverNodes(){
         nodeInHand.mouseIsOver=false;
         nodeInHand.needsUpdate = true;
     }
-    if(circutInHand==undefined){
+    if(circutInHand==undefined && _mode_ != CursorModes.INTEGRATE){
         cursor(ARROW);
     }
     nodeInHand = undefined;
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function placeGate(gate){
     if(gate.isWire){
@@ -171,6 +231,19 @@ function placeGate(gate){
     
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 function mousePressed(){
 
     if(mouseButton === RIGHT){
@@ -187,8 +260,42 @@ function mousePressed(){
         return;
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     dragog = [mouseX,mouseY,translationx-mouseX,translationy-mouseY];
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     if(circutInHand!=undefined){
         if(circutInHand.isWire == true){
@@ -213,10 +320,161 @@ function mousePressed(){
         cursor(ARROW);
     }
 }
+
+
+
+
+
+
+function wireNodeConnectionTest(wire, x,y, useNodeA){
+
+    return ((dist(wire.nodeA.x,wire.nodeA.y,x,y)<=2&&useNodeA) || (dist(wire.nodeB.x,wire.nodeB.y,x,y)<=2&&!useNodeA));
+
+}
+
+function constructCircut(){
+
+
+
+    var sx = -translationx/scalar+integrationArea[0]/scalar;
+    var sy = -translationy/scalar+integrationArea[1]/scalar;
+    var w = (integrationArea[2]-integrationArea[0])/scalar;
+    var h = (integrationArea[3]-integrationArea[1])/scalar;
+    var newCircut = new IntegratedCircut();
+    integrationArea = new Array(4);
+    for(var chunk in gates){
+        for (var g in gates[chunk]){
+            var gate = gates[chunk][g];
+            if(gate.x>sx&&gate.x<sx+w&&gate.y>sy&&gate.y<sy+h){
+                if(gate.isInputPin){
+                    newCircut.inputs.push(new Node(gate.x+10,gate.y+10));
+                    continue;
+                }
+                if(gate.isLEDOut){
+                    newCircut.outputs.push(new Node(gate.x+10,gate.y+10));
+                    continue;
+                }
+                newCircut.gates.push(gate.copy());
+            }
+        }
+    }
+
+    console.log(newCircut);
+
+
+    for(var w in wires){
+        var wire = wires[w];
+        if(wire.nodeB == undefined)continue;
+        if(wire.nodeA.x>sx&&wire.nodeA.x<sx+w&&wire.nodeA.y>sy&&wire.nodeA.y<sy+h    &&    wire.nodeB.x>sx&&wire.nodeB.x<sx+w&&wire.nodeB.y>sy&&wire.nodeB.y<sy+h){
+            var copiedWire = new Wire(undefined,undefined);
+            //newCircut.wires.push(wire);
+
+            //reconstruct wires with correct references
+
+            //input nodes
+            for(var n in newCircut.inputs){
+                var x = newCircut.inputs[n].x;
+                var y = newCircut.inputs[n].y;
+                
+                if(wireNodeConnectionTest(wire,x,y,true)){
+                    copiedWire.nodeA = newCircut.inputs[n];
+                    
+                }
+                else if(wireNodeConnectionTest(wire,x,y,false)){
+                    copiedWire.nodeB = newCircut.inputs[n];
+                }
+            }
+
+            //output nodes
+            for(var n in newCircut.outputs){
+                var x = newCircut.outputs[n].x;
+                var y = newCircut.outputs[n].y;
+                if(wireNodeConnectionTest(wire,x,y,true)){
+                    copiedWire.nodeA = newCircut.outputs[n];
+                }
+                else if(wireNodeConnectionTest(wire,x,y,false)){
+                    copiedWire.nodeB = newCircut.outputs[n];
+                }
+            }
+            //inside gates
+            for(var gate in newCircut.gates){
+
+                //gate inps
+                for(var n in newCircut.gates[gate].inpNodes){
+                    var x = newCircut.gates[gate].inpNodes[n].x;
+                    var y = newCircut.gates[gate].inpNodes[n].y;
+                    if(wireNodeConnectionTest(wire,x,y,true)){
+                        copiedWire.nodeA = newCircut.gates[gate].inpNodes[n];
+                    }
+                    else if(wireNodeConnectionTest(wire,x,y,false)){
+                        copiedWire.nodeB = newCircut.gates[gate].inpNodes[n];
+                    }
+                }
+
+                //gate outs
+                for(var n in newCircut.gates[gate].outNodes){
+                    var x = newCircut.gates[gate].outNodes[n].x;
+                    var y = newCircut.gates[gate].outNodes[n].y;
+                    if(wireNodeConnectionTest(wire,x,y,true)){
+                        copiedWire.nodeA = newCircut.gates[gate].outNodes[n];
+                    }
+                    else if(wireNodeConnectionTest(wire,x,y,false)){
+                        copiedWire.nodeB = newCircut.gates[gate].outNodes[n];
+                    }
+                }
+            }
+            //console.log(copiedWire);
+            //satisfy other end of references for re-construction
+            copiedWire.nodeA.wires.push(copiedWire);
+            copiedWire.nodeB.wires.push(copiedWire);
+
+            newCircut.wires.push(copiedWire);
+
+        }
+    }
+
+    console.log(newCircut);
+    if(newCircut.gates.length<=0){
+        return;
+    }
+    workingIntegrationCircut = newCircut;
+    createNewCircutModal();
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function mouseReleased(){
     dragog = [];
-    if(mouseButton === RIGHT || _mode_ == CursorModes.INTEGRATE){
+    if(mouseButton === RIGHT){
         return;
+    }
+    if(_mode_ == CursorModes.INTEGRATE){
+        _mode_ == CursorModes.MOVEMENT;
+
+        constructCircut();
+
+
+
     }
     /*
     TODO: Occasional misdetection when circuts are placed on the line between chunks
@@ -277,6 +535,19 @@ function mouseReleased(){
         
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
@@ -294,10 +565,26 @@ function mouseWheel(event) {
         }
 }
 function handleDrag(){
-    if(dragog[0]==undefined||_mode_!=CursorModes.MOVEMENT){return;}
-    translationx=dragog[2]+mouseX;
-    translationy=dragog[3]+mouseY;
+    if(dragog[0]==undefined||_mode_==CursorModes.EDIT){return;}
+    if(_mode_ == CursorModes.MOVEMENT){
+        translationx=dragog[2]+mouseX;
+        translationy=dragog[3]+mouseY;
+    }else if (_mode_ == CursorModes.INTEGRATE){
+        integrationArea[0] = dragog[0];
+        integrationArea[1] = dragog[1];
+        integrationArea[2] = mouseX;
+        integrationArea[3] = mouseY;
+    }
 }
+
+function drawIntegrationArea(){
+    if(integrationArea[0]==undefined)return;
+    fill(100,100,255,100);
+    stroke(100,100,255);
+    rect(integrationArea[0],integrationArea[1],integrationArea[2]-integrationArea[0],integrationArea[3]-integrationArea[1]);
+
+}
+
 
 function handleEdit(){
 
@@ -327,5 +614,9 @@ function keyPressed(){
 
 function startIntegrationMode(){
     cursor(CROSS);
-    _mode_ = CursorModes.INTEGRATE;
+    if(_mode_ != CursorModes.INTEGRATE){
+        _mode_ = CursorModes.INTEGRATE;
+    }else{
+        _mode_ = CursorModes.MOVEMENT;
+    }
 }
