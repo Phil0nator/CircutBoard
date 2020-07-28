@@ -62,15 +62,60 @@ function saveIntegratedCircut(circut, name){
 
 
 
+function generateAllBinaryStrings(n,arr,i,oarr,c){
+    if(i == n) {
+        console.log(arr.concat());
+        console.log(passTest(c,arr.concat()));
+        return;
+    }
+    
+    arr[i] = true;
+    generateAllBinaryStrings(n,arr,i+1,oarr,c);
+    arr[i]=false;
+    generateAllBinaryStrings(n,arr,i+1,oarr,c);
+    
+
+    
 
 
 
 
+}
 
 
 
 
+function passTest(circut, inputs){
+    circut.inputs = inputs.concat();
+    for(var i = 0 ; i < circut.inputs.length; i ++){
+        circut.inpNodes[i].value = inputs[i];
+    }
+    circut.x=-1000;
+    circut.y=-1000;
+    circut.update();
+    for(var i = 0 ; i < circut.outNodes.length;i++){
+        circut.outputs[i]=circut.outNodes[i].value;
+    }
+    return circut.outputs.concat();
+}
 
+
+function generateTruthTable(name){
+    var c = new IntegratedCircut();
+    c.loadFromJson(localStorage.getItem(name));
+    c.name=name;
+    var len = c.inpNodes.length;
+    var io_i = [];
+    var io_o = [];
+    var oarrtest = [];
+    var array = new Array(len);
+    generateAllBinaryStrings(len,array,0,oarrtest,c);
+    
+
+    
+
+
+}
 
 
 function getIntegratedCircut(name){

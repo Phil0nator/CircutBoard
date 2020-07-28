@@ -1001,7 +1001,6 @@ class IntegratedCircut{
                 this.inpNodes[node].updateWires();
             }
             for (var node in this.outNodes){
-                console.log(this.outputs[node]);
                 this.outNodes[node].draw();
                 this.outputs[node] = this.outNodes[node].value;
                 this.outNodes[node].updateWires();
