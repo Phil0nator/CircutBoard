@@ -26,6 +26,8 @@ const CursorModes = {
 var _mode_ = CursorModes.MOVEMENT;
 
 
+var shiftDown = false;
+
 var circutInHand = undefined;
 var nodeInHand = undefined;
 

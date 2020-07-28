@@ -628,8 +628,34 @@ function keyPressed(){
         inp.delta = +53;
         mouseWheel(inp);
     }
+
+
+
+
+    if(shiftDown && keyCode == 73){// i
+        var mx = (-translationx/scalar+mouseX/scalar);
+        var my = (-translationy/scalar+mouseY/scalar);
+        placeGate(new PIN(mx,my));
+
+    }else if (shiftDown && keyCode == 79){
+        var mx = (-translationx/scalar+mouseX/scalar);
+        var my = (-translationy/scalar+mouseY/scalar);
+        placeGate(new LED(mx,my));
+    }
+
+
+
+    if(keyCode == SHIFT){
+        shiftDown=true;
+    }
 }
 
+
+function keyReleased(){
+    if(keyCode==SHIFT){
+        shiftDown=false;
+    }
+}
 
 function startIntegrationMode(){
     cursor(CROSS);
