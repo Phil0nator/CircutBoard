@@ -16,12 +16,18 @@ function setup(){
         gates.push([]);
     }
 
+
+
+    //html related:
+
+    loadICUIElements();
+
 }
 
 
 function getMChunk(){
-    var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-    var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+    var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
+    var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
     return gates[indx+indy*10];
 }
 
@@ -57,6 +63,7 @@ function draw(){
     
     //overlay.strokeWeight(1);
     image(overlay,0,0);
+    
     
 
     
@@ -150,8 +157,8 @@ function draw(){
 function handleMouseOverNodes(){
 
     
-    var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-    var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+    var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
+    var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
     var mx = (-translationx/scalar+mouseX/scalar);
     var my = (-translationy/scalar+mouseY/scalar);
     for(var g in gates[indx+indy*10]){
@@ -220,8 +227,8 @@ function placeGate(gate){
         gate.place();
         return;
     }
-    var indx = int(gate.x/(overall_dim/10));
-    var indy = int(gate.y/(overall_dim/10));
+    var indx = round(gate.x/(overall_dim/10));
+    var indy = round(gate.y/(overall_dim/10));
     gates[indx+indy*10].push(gate);
     gate.place();
     for(var wire in wires){
@@ -286,7 +293,9 @@ function mousePressed(){
 
 
 
-
+    if(_mode_ == CursorModes.INTEGRATE){
+        return;
+    }
 
 
 
@@ -430,6 +439,9 @@ function constructCircut(){
 
             newCircut.wires.push(copiedWire);
 
+        }else{
+            console.log("wire found outside region: ");
+            console.log(wire);
         }
     }
 
@@ -480,8 +492,8 @@ function mouseReleased(){
     TODO: Occasional misdetection when circuts are placed on the line between chunks
     */
     if(circutInHand==undefined&&nodeInHand==undefined){
-        var indx = int((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-        var indy = int((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+        var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
+        var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
         var mx = (-translationx/scalar+mouseX/scalar);
         var my = (-translationy/scalar+mouseY/scalar);
 

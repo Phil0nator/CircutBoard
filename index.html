@@ -102,6 +102,7 @@
                     </li>
                     <li>
                         <ul class="uk-list" id = "custom_circuts_list">
+                            
 
                         </ul>
                     </li>
@@ -117,7 +118,7 @@
         <div id="integratedCircutConfig" class="uk-modal uk-modal-container" uk-modal="bg-close:false;">
             <div class="uk-modal-dialog">
 
-                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <button class="uk-modal-close-default" type="button" onclick=" newCircut_Cancel();" uk-close></button>
         
                 <div class="uk-modal-header">
                     <h2 class="uk-modal-title">Integrated Circut</h2>
@@ -126,7 +127,7 @@
                 <div class="uk-modal-body  uk-grid" uk-overflow-auto>
                     
                     <div id="icc-infoform ">
-                        <input class="uk-input uk-width-1 uk-column-1" type="text" placeholder="New Circut Name"></input>
+                        <input id="icc-name" class="uk-input uk-width-1 uk-column-1" type="text" placeholder="New Circut Name"></input>
                         
                         <button class="uk-button uk-button-default uk-column-1 uk-width-1 uk-margin "> Generate Truth Table </button> 
                     </div>
@@ -136,8 +137,8 @@
                 </div>
         
                 <div class="uk-modal-footer uk-text-right">
-                    <button class="uk-button uk-button-default uk-modal-close" type="button">Cancel</button>
-                    <button class="uk-button uk-button-primary" type="button">Save</button>
+                    <button class="uk-button uk-button-default uk-modal-close" onclick =" newCircut_Cancel();" type="button">Cancel</button>
+                    <button class="uk-button uk-button-primary" type="button" onclick = "newCircut_Save();">Save</button>
                 </div>
         
             </div>

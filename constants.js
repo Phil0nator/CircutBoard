@@ -4,6 +4,8 @@ const node_mover = [100,150,255];
 const bg_gscale = 150;
 const node_r = 10;
 const wire_click_slack = 5;
+const IC_Width = 75;
+
 
 var bg;
 var overlay;
