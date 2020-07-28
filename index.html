@@ -35,8 +35,8 @@
 
 
 
-        <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: false; bg-close: false;">
-            <div class="uk-offcanvas-bar">
+        <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: false; bg-close: false; mode: push" >
+            <div class="uk-offcanvas-bar" >
 
                 <button class="uk-offcanvas-close" type="button" uk-close></button>
 
@@ -84,7 +84,7 @@
                                 <button class="uk-button uk-button-default uk-width-1-1" onclick="">ROM</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">S-R FLIP FLOP</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new SRFlipFlop(0,0);cursor('grab');">S-R FLIP FLOP</button>
                             </li>
                         </ul>
 

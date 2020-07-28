@@ -21,7 +21,7 @@ class Node{
         for(var wire in this.wires){
             this.wires[wire].needsUpdate=true;
             
-            //this.wires[wire].inputs[0] = this.value;
+            //this.wires[wire].s_inputs[0] = this.value;
             this.wires[wire].value = this.value;
         }
         this.gate.needsUpdate=true;
@@ -179,6 +179,8 @@ class Wire extends Gate{
         
     }
     createJSON(){
+        //this.x=this.nodeA.x;this.y=this.nodeA.y;
+        //this.x2=this.nodeB.x;this.y2=this.nodeB.y;
         var out = {};
         out[this.constructor.name] = [this.nodeA.x,this.nodeA.y,this.nodeB.x,this.nodeB.y];
         return out;
@@ -675,6 +677,102 @@ class WireNode extends Gate{
     }
 
 }
+class SRFlipFlop extends Gate{
+
+
+    constructor(x,y){
+        super(x,y);
+        this.hboxw = 100;
+        this.hboxh = 100;
+        
+    }
+
+    copy(){
+        var out = new SRFlipFlop(this.x,this.y);
+        out.place();
+        return out;
+    }
+
+    place(){
+
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new Node(this.x,this.y+15, this,true), new Node(this.x,this.y+45, this,true),new Node(this.x,this.y+75, this,true)];
+            this.outNodes = [new Node(this.x+100,this.y+50, this,false)];
+        }else{
+            this.inpNodes[0].set(this.x,this.y+15);
+            this.inpNodes[1].set(this.x,this.y+45);
+            this.inpNodes[2].set(this.x,this.y+75);
+            this.outNodes[0].set(this.x+100,this.y+50);
+        }
+
+    }
+    passthrough(){
+        if(this.inputs[0]){
+            this.value = this.inputs[1];
+            
+        }else if(this.inputs[2]&&this.inputs[1]){
+            this.value=false;
+        }
+        this.outputs[0] = this.value;
+    }
+
+    drawfordrag(){
+        scale(scalar);
+        rect(this.x,this.y,100,100);
+    }
+
+
+    draw(overlay){
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+
+        if(this.value){
+            overlay.fill(0,255,0);
+
+        }else{
+            overlay.fill(255,0,0)
+        }
+        overlay.rect(this.x,this.y,100,100);
+        overlay.fill(0);
+        overlay.text("S",this.x+10,this.y+10);
+        overlay.text(">", this.x+15,this.y+50);
+        overlay.text("R",this.x+10,this.y+90);
+    }
+
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function nodeSort(a,b){
 
     if(a.y<b.y){
@@ -691,12 +789,14 @@ class IntegratedCircut{
         this.gates= [];
         this.wires = [];
         //for saving only
-        this.inputs = [];
-        this.outputs = [];
+        this.s_inputs = [];
+        this.s_outputs = [];
 
         //for runtime
         this.inpNodes = [];
         this.outNodes = [];
+        this.inputs = [];
+        this.outputs = [];
 
         this.width = IC_Width;
         this.x=0;
@@ -739,10 +839,12 @@ class IntegratedCircut{
 
 
         for(var n in J.inputs){
-            this.inputs.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1]));
+            this.inpNodes.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1]));
+            this.s_inputs.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1]));
         }
         for(var n in J.outputs){
-            this.outputs.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1]));
+            this.outNodes.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1]));
+            this.s_outputs.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1]));
         }
         this.prep();
         console.log(this);
@@ -759,31 +861,31 @@ class IntegratedCircut{
             //reconstruct wires with correct references
 
             //input nodes
-            for(var n in this.inputs){
-                var x = this.inputs[n].x;
-                var y = this.inputs[n].y;
+            for(var n in this.s_inputs){
+                var x = this.s_inputs[n].x;
+                var y = this.s_inputs[n].y;
                 
                 if(wireNodeConnectionTest(wire,x,y,true)){
-                    copiedWire.nodeA = this.inputs[n];
+                    copiedWire.nodeA = this.inpNodes[n];
                     copiedWire.nodeA.gate=copiedWire;
                 }
                 else if(wireNodeConnectionTest(wire,x,y,false)){
-                    copiedWire.nodeB = this.inputs[n];
+                    copiedWire.nodeB = this.inpNodes[n];
                     copiedWire.nodeB.gate=copiedWire;
                 }
             }
 
             //output nodes
-            for(var n in this.outputs){
-                var x = this.outputs[n].x;
-                var y = this.outputs[n].y;
+            for(var n in this.s_outputs){
+                var x = this.s_outputs[n].x;
+                var y = this.s_outputs[n].y;
                 if(wireNodeConnectionTest(wire,x,y,true)){
-                    copiedWire.nodeA = this.outputs[n];
+                    copiedWire.nodeA = this.outNodes[n];
                     copiedWire.nodeA.gate=copiedWire;
 
                 }
                 else if(wireNodeConnectionTest(wire,x,y,false)){
-                    copiedWire.nodeB = this.outputs[n];
+                    copiedWire.nodeB = this.outNodes[n];
                     copiedWire.nodeB.gate=copiedWire;
 
                 }
@@ -831,7 +933,7 @@ class IntegratedCircut{
     }
 
     drawfordrag(){
-
+        scale(scalar);
         fill(255);
         rect(this.x,this.y,this.width,this.height);
         textSize(15);
@@ -850,7 +952,7 @@ class IntegratedCircut{
         overlay.fill(255);
         overlay.rect(this.x,this.y,this.width,this.height);
         overlay.textSize(15);
-        overlay.text(this.name,this.x,this.y,this.width,this.height);
+        overlay.text(this.name.substring(3,this.name.length),this.x,this.y,this.width,this.height);
         
 
 
@@ -865,6 +967,7 @@ class IntegratedCircut{
         for(var wire in this.wires){
             this.wires[wire].integratedUpdate();
         }
+        
 
     }
     cleanup(){
@@ -887,8 +990,7 @@ class IntegratedCircut{
         //this.needsUpdate||fullRedraw
         if(this.inpNodes != []){
             for(var node in this.inpNodes){
-                //this.inputs[node] = this.inpNodes[node].value;
-                
+                this.inputs[node] = this.inpNodes[node].value;
             }
             
             this.passthrough();
@@ -899,8 +1001,9 @@ class IntegratedCircut{
                 this.inpNodes[node].updateWires();
             }
             for (var node in this.outNodes){
+                console.log(this.outputs[node]);
                 this.outNodes[node].draw();
-                this.outNodes[node].value = this.outputs[node];
+                this.outputs[node] = this.outNodes[node].value;
                 this.outNodes[node].updateWires();
             }
             if(!fullRedraw){
@@ -916,29 +1019,29 @@ class IntegratedCircut{
 
     place(){
         if(this.inpNodes[0] == undefined){
-            for(var n in this.inputs){
-                this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/this.inputs.length),this,true));
+            for(var n in this.s_inputs){
+                this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/this.s_inputs.length),this,true));
             }
-            for(var n in this.outputs){
-                this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/this.outputs.length),this,false));
+            for(var n in this.s_outputs){
+                this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/this.s_outputs.length),this,false));
             }
         }else{
-            for(var n in this.inputs){
-                this.inpNodes[n].set(this.x,this.y+25+n*(this.height/this.inputs.length));
+            for(var n in this.s_inputs){
+                this.inpNodes[n].set(this.x,this.y+25+n*(this.height/this.s_inputs.length));
             }
-            for(var n in this.outputs){
-                this.outNodes[n].set(this.x+this.width,this.y+n*(this.height/this.outputs.length));
+            for(var n in this.s_outputs){
+                this.outNodes[n].set(this.x+this.width,this.y+n*(this.height/this.s_outputs.length));
             }
         }
     }
 
     prep(){
-        this.inputs.sort(nodeSort);
-        this.outputs.sort(nodeSort);
-        if(this.inputs.length>this.outputs.length){
-            this.height = this.inputs.length*25;
+        this.s_inputs.sort(nodeSort);
+        this.s_outputs.sort(nodeSort);
+        if(this.s_inputs.length>this.s_outputs.length){
+            this.height = this.s_inputs.length*25;
         }else{
-            this.height = this.outputs.length*25;
+            this.height = this.s_outputs.length*25;
         }
         
         

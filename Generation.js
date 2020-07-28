@@ -36,16 +36,17 @@ function saveIntegratedCircut(circut, name){
     output.outputs = [];
     for(var g in gates){
         //console.log(gates[g].createJSON());
+        if(!gates[g].isInputPin&&!gates[g].isLEDOut)
         output.gates.push(gates[g].createJSON());
     }
     for(var w in wires){
         output.wires.push(wires[w].createJSON());
     }
-    for(var n in circut.inputs){
-        output.inputs.push(circut.inputs[n].createJSON());
+    for(var n in circut.s_inputs){
+        output.inputs.push(circut.s_inputs[n].createJSON());
     }
-    for(var n in circut.outputs){
-        output.outputs.push(circut.outputs[n].createJSON());
+    for(var n in circut.s_outputs){
+        output.outputs.push(circut.s_outputs[n].createJSON());
     }
     
     
@@ -94,7 +95,7 @@ function createDefaultICUIElement(name){
 
 function loadICUIElements(){
     var list = document.getElementById("custom_circuts_list");
-
+    
     for(var key in localStorage){
         console.log(key);
         if(key.startsWith("cc_")){

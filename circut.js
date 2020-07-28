@@ -356,11 +356,11 @@ function constructCircut(){
             var gate = gates[chunk][g];
             if(gate.x>sx&&gate.x<sx+w&&gate.y>sy&&gate.y<sy+h){
                 if(gate.isInputPin){
-                    newCircut.inputs.push(new Node(gate.x+10,gate.y+10));
+                    newCircut.s_inputs.push(new Node(gate.x+10,gate.y+10));
                     continue;
                 }
                 if(gate.isLEDOut){
-                    newCircut.outputs.push(new Node(gate.x+10,gate.y+10));
+                    newCircut.s_outputs.push(new Node(gate.x+10,gate.y+10));
                     continue;
                 }
                 newCircut.gates.push(gate.copy());
@@ -374,6 +374,9 @@ function constructCircut(){
     for(var w in wires){
         var wire = wires[w];
         if(wire.nodeB == undefined)continue;
+        console.log("WIRE REGIEON: ");
+        console.log(wire);
+        console.log(sx,sy,sx+w,sy+h);
         if(wire.nodeA.x>sx&&wire.nodeA.x<sx+w&&wire.nodeA.y>sy&&wire.nodeA.y<sy+h    &&    wire.nodeB.x>sx&&wire.nodeB.x<sx+w&&wire.nodeB.y>sy&&wire.nodeB.y<sy+h){
             var copiedWire = new Wire(undefined,undefined);
             //newCircut.wires.push(wire);
@@ -381,28 +384,28 @@ function constructCircut(){
             //reconstruct wires with correct references
 
             //input nodes
-            for(var n in newCircut.inputs){
-                var x = newCircut.inputs[n].x;
-                var y = newCircut.inputs[n].y;
+            for(var n in newCircut.s_inputs){
+                var x = newCircut.s_inputs[n].x;
+                var y = newCircut.s_inputs[n].y;
                 
                 if(wireNodeConnectionTest(wire,x,y,true)){
-                    copiedWire.nodeA = newCircut.inputs[n];
+                    copiedWire.nodeA = newCircut.s_inputs[n];
                     
                 }
                 else if(wireNodeConnectionTest(wire,x,y,false)){
-                    copiedWire.nodeB = newCircut.inputs[n];
+                    copiedWire.nodeB = newCircut.s_inputs[n];
                 }
             }
 
             //output nodes
-            for(var n in newCircut.outputs){
-                var x = newCircut.outputs[n].x;
-                var y = newCircut.outputs[n].y;
+            for(var n in newCircut.s_outputs){
+                var x = newCircut.s_outputs[n].x;
+                var y = newCircut.s_outputs[n].y;
                 if(wireNodeConnectionTest(wire,x,y,true)){
-                    copiedWire.nodeA = newCircut.outputs[n];
+                    copiedWire.nodeA = newCircut.s_outputs[n];
                 }
                 else if(wireNodeConnectionTest(wire,x,y,false)){
-                    copiedWire.nodeB = newCircut.outputs[n];
+                    copiedWire.nodeB = newCircut.s_outputs[n];
                 }
             }
             //inside gates
@@ -605,11 +608,15 @@ function handleEdit(){
 
 function keyPressed(){
     if(keyCode == 32){
-        if(nodeInHand.gate.isInputPin){
-            nodeInHand.value = !nodeInHand.value;
-            nodeInHand.gate.value=nodeInHand.value;
-            nodeInHand.gate.needsUpdate = true;
-            nodeInHand.updateWires();
+        try{
+            if(nodeInHand.gate.isInputPin){
+                nodeInHand.value = !nodeInHand.value;
+                nodeInHand.gate.value=nodeInHand.value;
+                nodeInHand.gate.needsUpdate = true;
+                nodeInHand.updateWires();
+            }
+        }catch(e){
+
         }
     }
     if(keyCode == UP_ARROW){
