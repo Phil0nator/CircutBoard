@@ -805,9 +805,23 @@ class IntegratedCircut{
         this.needsUpdate = false;
     }
 
-    loadFromJson(J){
+    copy(){
+        var out = new IntegratedCircut();
+        out.loadFromJson(this.name);
+        out.x=this.x;
+        out.y=this.y;
+        return out;
+    }
+
+    loadFromJson(name){
+        this.name=name;
+        var J = localStorage.getItem(this.name);
         J = JSON.parse(J);
-        
+        if(J == null){
+            return null;
+        }
+        console.log(J);
+
         for(var g in J.gates){
             var gate;
             var gname;
@@ -830,6 +844,12 @@ class IntegratedCircut{
                     break;
                 case "WireNode":
                     gate = new WireNode(coords[0],coords[1]);
+                    break;
+                case "IntegratedCircut":
+                    gate = new IntegratedCircut();
+                    gate.loadFromJson(J.gates[g][gname][2]);
+                    gate.x=coords[0];
+                    gate.y=coords[1];
                     break;
             }
             gate.place();
@@ -929,7 +949,9 @@ class IntegratedCircut{
     }
 
     createJSON(){
-        return undefined;
+        var out = {};
+        out[this.constructor.name] = [this.x,this.y, this.name];
+        return out;
     }
 
     drawfordrag(){
@@ -952,11 +974,37 @@ class IntegratedCircut{
         overlay.fill(255);
         overlay.rect(this.x,this.y,this.width,this.height);
         overlay.textSize(15);
+        overlay.fill(0);
         overlay.text(this.name.substring(3,this.name.length),this.x,this.y,this.width,this.height);
         
 
 
 
+    }
+
+    integratedUpdate(){
+        if(this.inpNodes != []){
+            for(var node in this.inpNodes){
+                this.inputs[node] = this.inpNodes[node].value;
+            }
+            
+            this.passthrough();
+            
+            for(var node in this.inpNodes){
+                this.inpNodes[node].updateWires();
+            }
+            for (var node in this.outNodes){
+                this.outputs[node] = this.outNodes[node].value;
+                this.outNodes[node].updateWires();
+            }
+            if(!fullRedraw){
+                fullRedraw=true;
+            }
+
+            this.needsUpdate=false;
+        }else{
+            console.log("issues")
+        }
     }
 
     passthrough(){

@@ -123,6 +123,7 @@ function draw(){
 
     if(_mode_ == CursorModes.INTEGRATE){
         drawIntegrationArea();
+
     }
 
     handleMouseOverNodes();
@@ -168,18 +169,24 @@ function handleMouseOverNodes(){
         var hbox = gates[indx+indy*10][g].gethbox();
         var x = hbox[0];
         var y = hbox[1];
-        var w = hbox[2]/scalar;
-        var h = hbox[3]/scalar;
-        if(mx>x&&mx<x+hbox[2]&&my>y&&my<y+hbox[3]){
+        x-=10;
+        y-=10;
+        var w = hbox[2];
+        var h = hbox[3];
+        w+=10;
+        h+=10;
+        if(mx>x&&mx<x+w&&my>y&&my<y+h){
             
             var allnodes = gates[indx+indy*10][g].getNodes();
             for(var i = 0; i < 2;i++){
                 for(var node in allnodes[i]){
-                    if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r){
+                    if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r*2){
                         nodeInHand = allnodes[i][node];
                         nodeInHand.mouseIsOver = true;
                         cursor(HAND);
                         return;
+                    }else{
+                        allnodes[i][node].mouseIsOver=false;
                     }
                 }
             }
@@ -347,10 +354,26 @@ function constructCircut(){
 
     var sx = -translationx/scalar+integrationArea[0]/scalar;
     var sy = -translationy/scalar+integrationArea[1]/scalar;
-    var w = (integrationArea[2]-integrationArea[0])/scalar;
-    var h = (integrationArea[3]-integrationArea[1])/scalar;
+    integrationArea[2] = -translationx/scalar+integrationArea[2]/scalar;
+    integrationArea[3] = -translationx/scalar+integrationArea[3]/scalar;
+
+
+    if(integrationArea[2] < sx){
+        var t = sx;
+        sx = integrationArea[2];
+        integrationArea[2]=t;
+    }
+    if(integrationArea[3] < sy){
+        var t = sy;
+        sy = integrationArea[3];
+        integrationArea[3] = t;
+    }
+
+
+
     var newCircut = new IntegratedCircut();
-    integrationArea = new Array(4);
+    
+    //integrationArea = new Array(4);
     for(var chunk in gates){
         for (var g in gates[chunk]){
             var gate = gates[chunk][g];
@@ -368,16 +391,15 @@ function constructCircut(){
         }
     }
 
-    console.log(newCircut);
 
 
     for(var w in wires){
         var wire = wires[w];
         if(wire.nodeB == undefined)continue;
         console.log("WIRE REGIEON: ");
-        console.log(wire);
-        console.log(sx,sy,sx+w,sy+h);
-        if(wire.nodeA.x>sx&&wire.nodeA.x<sx+w&&wire.nodeA.y>sy&&wire.nodeA.y<sy+h    &&    wire.nodeB.x>sx&&wire.nodeB.x<sx+w&&wire.nodeB.y>sy&&wire.nodeB.y<sy+h){
+        
+        console.log(sx,sy,integrationArea[2],integrationArea[3]);
+        if(wire.nodeA.x>sx&&wire.nodeA.x<integrationArea[2]&&wire.nodeA.y>sy&&wire.nodeA.y<integrationArea[3]    ||   wire.nodeB.x>sx&&wire.nodeB.x<integrationArea[2]&&wire.nodeB.y>sy&&wire.nodeB.y<integrationArea[3]){
             var copiedWire = new Wire(undefined,undefined);
             //newCircut.wires.push(wire);
 
@@ -454,7 +476,8 @@ function constructCircut(){
     }
     workingIntegrationCircut = newCircut;
     createNewCircutModal();
-
+    integrationArea = new Array(4);
+    _mode_ = CursorModes.MOVEMENT;
 
 
 }

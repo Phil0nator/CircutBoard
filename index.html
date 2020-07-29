@@ -129,11 +129,16 @@
                     <div id="icc-infoform ">
                         <input id="icc-name" class="uk-input uk-width-1 uk-column-1" type="text" placeholder="New Circut Name"></input>
                         
-                        <button class="uk-button uk-button-default uk-column-1 uk-width-1 uk-margin "> Generate Truth Table </button> 
+                        <button class="uk-button uk-button-default uk-column-1 uk-width-1 uk-margin " onclick="generateTruthTable(workingIntegrationCircut.name);"> Generate Truth Table </button> 
                     </div>
                     <div id="icc-main">
 
                     </div>
+                </div>
+                <div class = "uk-overflow-auto">
+                    <table id="truthTable" class="uk-table uk-table-hover uk-table-divider uk-table-striped">
+                        
+                    </table>
                 </div>
         
                 <div class="uk-modal-footer uk-text-right">
