@@ -16,7 +16,7 @@ function setup(){
         gates.push([]);
     }
 
-
+    setInterval(handleTimedEvents,100);
 
     //html related:
 
@@ -180,7 +180,7 @@ function handleMouseOverNodes(){
             var allnodes = gates[indx+indy*10][g].getNodes();
             for(var i = 0; i < 2;i++){
                 for(var node in allnodes[i]){
-                    if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r*2){
+                    if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r){
                         nodeInHand = allnodes[i][node];
                         nodeInHand.mouseIsOver = true;
                         cursor(HAND);
@@ -213,7 +213,15 @@ function handleMouseOverNodes(){
 
 
 
+function handleTimedEvents(){
 
+    if(justPlacedWire&&Date.now()-lastWirePlace>100){
+        justPlacedWire=false;
+    }
+
+
+
+}
 
 
 
@@ -240,7 +248,12 @@ function placeGate(gate){
     gate.place();
     for(var wire in wires){
         wires[wire].needsUpdate = true;
+        
     }
+
+    lastWirePlace = Date.now();
+    justPlacedWire = true;
+
     fullRedraw=true;
     
 
@@ -517,7 +530,7 @@ function mouseReleased(){
     /*
     TODO: Occasional misdetection when circuts are placed on the line between chunks
     */
-    if(circutInHand==undefined&&nodeInHand==undefined){
+    if(circutInHand==undefined&&nodeInHand==undefined&&!justPlacedWire){
         var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
         var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
         var mx = (-translationx/scalar+mouseX/scalar);

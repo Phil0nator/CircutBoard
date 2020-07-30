@@ -36,3 +36,7 @@ var fullRedraw = false;
 
 var integrationArea = [];
 var workingIntegrationCircut;
+
+
+var justPlacedWire = false;
+var lastWirePlace = Date.now();
