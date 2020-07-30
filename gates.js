@@ -859,12 +859,12 @@ class IntegratedCircut{
 
 
         for(var n in J.inputs){
-            this.inpNodes.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1]));
-            this.s_inputs.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1]));
+            this.inpNodes.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1],this,true));
+            this.s_inputs.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1],this,true));
         }
         for(var n in J.outputs){
-            this.outNodes.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1]));
-            this.s_outputs.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1]));
+            this.outNodes.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1],this,false));
+            this.s_outputs.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1],this,false));
         }
         this.prep();
         console.log(this);
