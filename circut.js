@@ -381,8 +381,8 @@ function constructCircut(){
         sy = integrationArea[3];
         integrationArea[3] = t;
     }
-
-
+    //overlay.rect(sx,sy,integrationArea[2]-sx,integrationArea[3]-sy);
+    //overlay.ellipse(sx,sy,20,20);
 
     var newCircut = new IntegratedCircut();
     
@@ -390,7 +390,7 @@ function constructCircut(){
     for(var chunk in gates){
         for (var g in gates[chunk]){
             var gate = gates[chunk][g];
-            if(gate.x>sx&&gate.x<sx+w&&gate.y>sy&&gate.y<sy+h){
+            if(gate.x>sx&&gate.x<integrationArea[2]&&gate.y>sy&&gate.y<integrationArea[3]){
                 if(gate.isInputPin){
                     newCircut.s_inputs.push(new Node(gate.x+10,gate.y+10));
                     continue;
@@ -470,7 +470,7 @@ function constructCircut(){
                     }
                 }
             }
-            //console.log(copiedWire);
+            console.log(copiedWire);
             //satisfy other end of references for re-construction
             copiedWire.nodeA.wires.push(copiedWire);
             copiedWire.nodeB.wires.push(copiedWire);
@@ -629,10 +629,10 @@ function handleDrag(){
 }
 
 function drawIntegrationArea(){
-    if(integrationArea[0]==undefined)return;
+    if(dragog[0]==undefined)return;
     fill(100,100,255,100);
     stroke(100,100,255);
-    rect(integrationArea[0],integrationArea[1],integrationArea[2]-integrationArea[0],integrationArea[3]-integrationArea[1]);
+    rect(dragog[0],dragog[1],mouseX-dragog[0],mouseY-dragog[1]);
 
 }
 
