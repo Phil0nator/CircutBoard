@@ -136,12 +136,12 @@ async function generateTruthTable(name){
     if(true){
         for(var  i = 0 ; i < len ; i ++){
             var th = document.createElement("th");
-            th.innerHTML="Input<sub>"+i+"</sub>";
+            th.innerHTML="I<sub>"+i+"</sub>";
             header.appendChild(th);
         }
         for(var i = 0 ; i < c.outNodes.length;i++){
             var th = document.createElement("th");
-            th.innerHTML="Output<sub>"+i+"</sub>";
+            th.innerHTML="O<sub>"+i+"</sub>";
             header.appendChild(th);
         }
     }

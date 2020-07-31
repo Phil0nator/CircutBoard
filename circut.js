@@ -528,7 +528,7 @@ function mouseReleased(){
 
 
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
+    resizeCanvas(document.body.clientWidth, document.body.clientHeight);
 }
 function mouseWheel(event) {
     if(_mode_ == CursorModes.EDIT){

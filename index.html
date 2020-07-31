@@ -29,7 +29,7 @@
                     <span class="uk-icon-button uk-margin" type="button" uk-toggle="target: #offcanvas-flip" uk-tooltip="title: Placeables; pos: right" uk-icon="menu"></span>
                 </li>
                 <li>
-                    <span class="uk-icon-button uk-margin" uk-tooltip="title: New Integrated Circut; pos: right" type="button" onclick="startIntegrationMode();" uk-icon="plus"></span>
+                    <span class="uk-icon-button uk-margin" uk-tooltip="title: New Integrated Circut; pos: right" type="button" onclick="startIntegrationMode();" uk-icon="move"></span>
                 </li>
             </ul>
         </div>
@@ -50,6 +50,11 @@
                 </ul>
 
                 <hr>
+
+                
+
+                
+
                 <ul class="uk-switcher uk-margin">
                     <li>
                         
@@ -108,6 +113,10 @@
                         </ul>
                     </li>
                 </ul>
+
+
+
+                <a class="uk-link-muted" href="#gateExplinationModal" uk-toggle>Gate Info</a>
                 
 
             </div>
@@ -140,7 +149,7 @@
                     <div id="spinnerDiv">
                         
                     </div>
-                    <table id="truthTable" class="uk-table uk-table-hover uk-table-divider uk-table-striped">
+                    <table id="truthTable" class="uk-table uk-table-hover uk-table-divider uk-table-striped uk-table-small">
                         
                     </table>
                 </div>
@@ -152,6 +161,167 @@
         
             </div>
                 
+        </div>
+
+
+        <div id="gateExplinationModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Gate Info</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div>
+                        <h3 class="uk-header">WireNode</h3>
+                        <p>The wire node is used to organize many wires by giving them a central point to connect to. The value held by the input node is directly passed into the output node.</p>
+                    </div>    
+                    <div>
+                        <h3 class = "uk-header">NOT</h3>
+                        <p>The not gate will return the opposite of its input.</p>
+                        <table class="uk-table uk-table-hover uk-table-divider uk-table-striped uk-table-small">
+                            <thead>
+                                <tr>
+                                    <th>I</th>
+                                    <th>O</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>true</td>
+                                    <td>false</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td>false</td>
+                                    <td>true</td>
+                                    
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 class="uk-header"> OR </h3>
+                        <p>The or gate will return true if either of its inputs is true.</p>
+                        <table class="uk-table uk-table-hover uk-table-divider uk-table-striped uk-table-small">
+                            <thead>
+                                <tr>
+                                    <th>I<sub>0</sub></th>
+                                    <th>I<sub>1</sub></th>
+                                    <th>O</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>false</td>
+                                    <td>false</td>
+                                    <td>false</td>
+                                </tr>
+                                <tr>
+                                    <td>false</td>
+                                    <td>true</td>
+                                    <td>true</td>
+                                </tr>
+                                <tr>
+                                    <td>true</td>
+                                    <td>false</td>
+                                    <td>true</td>
+                                </tr>
+                                <tr>
+                                    <td>true</td>
+                                    <td>true</td>
+                                    <td>true</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 class="uk-header">AND</h3>
+                        <p>The and gate will return true if both of its inputs are true.</p>
+                        <table class="uk-table uk-table-hover uk-table-divider uk-table-striped uk-table-small">
+                            <thead>
+                                <tr>
+                                    <th>I<sub>0</sub></th>
+                                    <th>I<sub>1</sub></th>
+                                    <th>O</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>false</td>
+                                    <td>false</td>
+                                    <td>false</td>
+                                </tr>
+                                <tr>
+                                    <td>false</td>
+                                    <td>true</td>
+                                    <td>false</td>
+                                </tr>
+                                <tr>
+                                    <td>true</td>
+                                    <td>false</td>
+                                    <td>false</td>
+                                </tr>
+                                <tr>
+                                    <td>true</td>
+                                    <td>true</td>
+                                    <td>true</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 class="uk-header">XOR</h3>
+                        <p>The exclusive or gate will return true if exactly one of its inputs is true.</p>
+                        <table class="uk-table uk-table-hover uk-table-divider uk-table-striped uk-table-small">
+                            <thead>
+                                <tr>
+                                    <th>I<sub>0</sub></th>
+                                    <th>I<sub>1</sub></th>
+                                    <th>O</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>false</td>
+                                    <td>false</td>
+                                    <td>false</td>
+                                </tr>
+                                <tr>
+                                    <td>false</td>
+                                    <td>true</td>
+                                    <td>true</td>
+                                </tr>
+                                <tr>
+                                    <td>true</td>
+                                    <td>false</td>
+                                    <td>true</td>
+                                </tr>
+                                <tr>
+                                    <td>true</td>
+                                    <td>true</td>
+                                    <td>false</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 class="uk-header">Input Pins</h3>
+                        <p>Input pins allow you to mark inputs to your circut, and interact with it. When you select a circut to be integrated, these pins will mark the inputs of the new circut. You can interact with them by pressing space when you mouse-over them.</p>
+                    </div>
+                    <div>
+                        <h3 class="uk-header">Output Pins</h3>
+                        <p>Output pins allow you to mark outputs to your circut, much like input pins allow you to mark inputs.</p>
+                    </div>
+                    <div>
+                        <h3 class="uk-header">S-R Flip Flop</h3>
+                        <p>An S-R Flip Flop will store one bit of data, and output it unconditionally. The first input (SET) will set this 1 bit of storage to the input given in the second input. The third input (RESET) will set the 1 bit of storage to false, if the second input is true.</p>
+                    </div>  
+                    
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-primary uk-modal-close" type="button">Done</button>
+                </div>
+            </div>
         </div>
 
     </body>
