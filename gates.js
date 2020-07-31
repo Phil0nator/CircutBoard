@@ -803,6 +803,9 @@ class IntegratedCircut{
         this.y=0;
         this.name = "IntegratedCircut";
         this.needsUpdate = false;
+
+
+        this.isIntegrated = true;
     }
 
     copy(){
@@ -1080,6 +1083,8 @@ class IntegratedCircut{
                 this.outNodes[n].set(this.x+this.width,this.y+n*(this.height/this.s_outputs.length));
             }
         }
+        this.s_inputs=this.inpNodes;
+        this.s_outputs = this.outNodes;
     }
 
     prep(){

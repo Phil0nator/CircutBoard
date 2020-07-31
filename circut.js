@@ -356,8 +356,9 @@ function mousePressed(){
 
 
 function wireNodeConnectionTest(wire, x,y, useNodeA){
-
-    return ((dist(wire.nodeA.x,wire.nodeA.y,x,y)<=2&&useNodeA) || (dist(wire.nodeB.x,wire.nodeB.y,x,y)<=2&&!useNodeA));
+    x=int(x);
+    y=int(y);
+    return ((dist(wire.nodeA.x,wire.nodeA.y,x,y)<=15&&useNodeA) || (dist(wire.nodeB.x,wire.nodeB.y,x,y)<=15&&!useNodeA));
 
 }
 
@@ -390,16 +391,26 @@ function constructCircut(){
     for(var chunk in gates){
         for (var g in gates[chunk]){
             var gate = gates[chunk][g];
-            if(gate.x>sx&&gate.x<integrationArea[2]&&gate.y>sy&&gate.y<integrationArea[3]){
+            if(gate.x>sx&&gate.x<integrationArea[2]&&gate.y>sy&&gate.y<integrationArea[3]&&gate.isWire!=true){
                 if(gate.isInputPin){
-                    newCircut.s_inputs.push(new Node(gate.x+10,gate.y+10));
+                    newCircut.s_inputs.push(new Node(gate.x+10,gate.y+10,newCircut,true));
                     continue;
                 }
                 if(gate.isLEDOut){
-                    newCircut.s_outputs.push(new Node(gate.x+10,gate.y+10));
+                    newCircut.s_outputs.push(new Node(gate.x+10,gate.y+10,newCircut,false));
                     continue;
                 }
-                newCircut.gates.push(gate.copy());
+                if(gate.isIntegrated){
+                    for(var gg in gate.gates){
+                        newCircut.gates.push(gate.gates[gg].copy());
+                    }
+                    for(var ww in gate.wires){
+                        newCircut.wires.push(gate.wires[ww].copy());
+                    
+                    }
+                }else{
+                    newCircut.gates.push(gate.copy());
+                }
             }
         }
     }
@@ -408,6 +419,10 @@ function constructCircut(){
 
     for(var w in wires){
         var wire = wires[w];
+        wire.nodeA.x=int(wire.nodeA.x);
+        wire.nodeA.y=int(wire.nodeA.y);
+        wire.nodeB.x=int(wire.nodeB.x);
+        wire.nodeB.y=int(wire.nodeB.y);
         if(wire.nodeB == undefined)continue;
         console.log("WIRE REGIEON: ");
         
@@ -445,38 +460,79 @@ function constructCircut(){
             }
             //inside gates
             for(var gate in newCircut.gates){
+                if(newCircut.gates[gate].isIntegrated){
+                    for(var n in newCircut.gates[gate].s_inputs){
+                        var x = newCircut.gates[gate].s_inputs[n].x;
+                        var y = newCircut.gates[gate].s_inputs[n].y;
+                        if(wireNodeConnectionTest(wire,x,y,true)){
+                            copiedWire.nodeA = newCircut.gates[gate].s_inputs[n];
+                            copiedWire.nodeA.gate=copiedWire;
 
+                        }
+                        else if(wireNodeConnectionTest(wire,x,y,false)){
+                            copiedWire.nodeB = newCircut.gates[gate].s_inputs[n];
+                            copiedWire.nodeB.gate=copiedWire;
+
+                        }
+                    }
+
+                    //gate outs
+                    for(var n in newCircut.gates[gate].s_outputs){
+                        var x = newCircut.gates[gate].s_outputs[n].x;
+                        var y = newCircut.gates[gate].s_outputs[n].y;
+                        if(wireNodeConnectionTest(wire,x,y,true)){
+                            copiedWire.nodeA = newCircut.gates[gate].s_outputs[n];
+                            copiedWire.nodeA.gate=copiedWire;
+
+                        }
+                        else if(wireNodeConnectionTest(wire,x,y,false)){
+                            copiedWire.nodeB = newCircut.gates[gate].s_outputs[n];
+                            copiedWire.nodeB.gate=copiedWire;
+
+                        }
+                    }
+                }else{
                 //gate inps
-                for(var n in newCircut.gates[gate].inpNodes){
-                    var x = newCircut.gates[gate].inpNodes[n].x;
-                    var y = newCircut.gates[gate].inpNodes[n].y;
-                    if(wireNodeConnectionTest(wire,x,y,true)){
-                        copiedWire.nodeA = newCircut.gates[gate].inpNodes[n];
+                    for(var n in newCircut.gates[gate].inpNodes){
+                        var x = newCircut.gates[gate].inpNodes[n].x;
+                        var y = newCircut.gates[gate].inpNodes[n].y;
+                        if(wireNodeConnectionTest(wire,x,y,true)){
+                            copiedWire.nodeA = newCircut.gates[gate].inpNodes[n];
+                            copiedWire.nodeA.gate=copiedWire;
+                        }
+                        else if(wireNodeConnectionTest(wire,x,y,false)){
+                            copiedWire.nodeB = newCircut.gates[gate].inpNodes[n];
+                            copiedWire.nodeB.gate=copiedWire;
+                        }
                     }
-                    else if(wireNodeConnectionTest(wire,x,y,false)){
-                        copiedWire.nodeB = newCircut.gates[gate].inpNodes[n];
-                    }
-                }
 
-                //gate outs
-                for(var n in newCircut.gates[gate].outNodes){
-                    var x = newCircut.gates[gate].outNodes[n].x;
-                    var y = newCircut.gates[gate].outNodes[n].y;
-                    if(wireNodeConnectionTest(wire,x,y,true)){
-                        copiedWire.nodeA = newCircut.gates[gate].outNodes[n];
-                    }
-                    else if(wireNodeConnectionTest(wire,x,y,false)){
-                        copiedWire.nodeB = newCircut.gates[gate].outNodes[n];
+                    //gate outs
+                    for(var n in newCircut.gates[gate].outNodes){
+                        var x = newCircut.gates[gate].outNodes[n].x;
+                        var y = newCircut.gates[gate].outNodes[n].y;
+                        if(wireNodeConnectionTest(wire,x,y,true)){
+                            copiedWire.nodeA = newCircut.gates[gate].outNodes[n];
+                        }
+                        else if(wireNodeConnectionTest(wire,x,y,false)){
+                            copiedWire.nodeB = newCircut.gates[gate].outNodes[n];
+                            copiedWire.nodeB.gate=copiedWire;
+
+                        }
                     }
                 }
             }
+            console.log(wire);
             console.log(copiedWire);
             //satisfy other end of references for re-construction
+            try{
             copiedWire.nodeA.wires.push(copiedWire);
             copiedWire.nodeB.wires.push(copiedWire);
 
             newCircut.wires.push(copiedWire);
 
+            }catch(e){
+                console.log(e);
+            }
         }else{
             console.log("wire found outside region: ");
             console.log(wire);

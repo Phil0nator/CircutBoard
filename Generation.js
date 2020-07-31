@@ -6,6 +6,7 @@ function createNewCircutModal(){
 
     modaldiv = document.getElementById("integratedCircutConfig");
     maindiv = document.getElementById("icc-main");
+    document.getElementById("icc-name").value = workingIntegrationCircut.name.substring(3,workingIntegrationCircut.name.length);
     maindiv.innerHTML="";
     _mode_ = CursorModes.EDIT;
     UIkit.modal(modaldiv).show();
@@ -21,11 +22,15 @@ function newCircut_Save(){
     document.getElementById("custom_circuts_list").innerHTML="";
     loadICUIElements();
     UIkit.modal(modaldiv).hide();
+    var table = document.getElementById("truthTable");
+    table.innerHTML="";
 }
 function newCircut_Cancel(){
     workingIntegrationCircut = undefined;
     _mode_ = CursorModes.MOVEMENT;
     UIkit.modal(modaldiv).hide();
+    var table = document.getElementById("truthTable");
+    table.innerHTML="";
 }
 
 function saveIntegratedCircut(circut, name){
@@ -66,7 +71,7 @@ function saveIntegratedCircut(circut, name){
 
 
 
-function generateAllBinaryStrings(n,arr,i,oarr,c){
+async function generateAllBinaryStrings(n,arr,i,oarr,c){
     if(i == n) {
         var o = passTest(c,arr.concat());
 
@@ -119,12 +124,20 @@ function passTest(circut, inputs){
     return circut.outputs.concat();
 }
 
+function startSpinner(){
+    document.getElementById("spinnerDiv").innerHTML="<div uk-spinner></div>";
 
-function generateTruthTable(name){
-    var c = new IntegratedCircut();
-    c.place();
-    c.loadFromJson(name);
-    c.name=name;
+}
+
+async function generateTruthTable(name){
+    if(workingIntegrationCircut==undefined){
+        var c = new IntegratedCircut();
+        c.place();
+        c.loadFromJson(name);
+        c.name=name;
+    }else{
+        var c = workingIntegrationCircut.copy();
+    }
     var len = c.inpNodes.length;
 
     var oarrtest = [];
@@ -150,12 +163,18 @@ function generateTruthTable(name){
     ttablebody = document.createElement("tbody");
 
 
+    finishTruthTableOp(len,array,oarrtest,c,table);
+    
 
-    generateAllBinaryStrings(len,array,0,oarrtest,c);
+
+}
+
+async function finishTruthTableOp(len,array,oarrtest,c,table){
+
+    await generateAllBinaryStrings(len,array,0,oarrtest,c);
     
     table.appendChild(ttablebody);
-    
-
+    document.getElementById("spinnerDiv").innerHTML="";
 
 }
 
