@@ -507,7 +507,7 @@ class XORGate extends Gate{
     passthrough(){
 
 
-        this.outputs[0] = this.inputs[0] ^ this.inputs[1];
+        this.outputs[0] = Boolean(this.inputs[0] ^ this.inputs[1]);
 
     }
     gethbox(){
@@ -894,11 +894,13 @@ class IntegratedCircut extends Gate{
             }
         }
     }
-    passthrough(){
-        for(var n in this.inpNodes){
-            this.inputs[n] = this.inpNodes[n].value;
+    passthrough(rec){
+        if(rec==undefined){
+            for(var n in this.inpNodes){
+                this.inputs[n] = this.inpNodes[n].value;
+            }
+            this.variables = new Array(this.variables.length);
         }
-        this.variables = new Array(this.variables.length);
         for(var p in this.instructionset){
             for(var inst in this.instructionset[p]){
 
@@ -906,6 +908,30 @@ class IntegratedCircut extends Gate{
                 if(instruction == undefined){
                     continue;
                 }
+                if(instruction[0] == "EXEC"){
+
+                    var subIC = new IntegratedCircut(-1000,-1000);
+                    subIC.loadFromJson(instruction[1]);
+                    subIC.place();
+                    for(var n in instruction[2]){
+                        if(typeof instruction[2][n] != "string"){
+                            subIC.inpNodes[n].value = this.variables[instruction[2][n]];
+                        }else{
+                            subIC.inpNodes[n].value = this.inputs[parseInt(instruction[2][n].substring(1,instruction[2][n].length))];;
+                        }
+                    }
+                    
+                    
+                    subIC.passthrough();
+                    for(var n in instruction[3]){
+                        this.variables[instruction[3][n]]=subIC.outNodes[n].value;
+                    }
+                    continue;
+
+                }
+
+
+
                 var operation = instruction[1];
                 var op1;
                 var op2;
@@ -994,7 +1020,6 @@ class IntegratedCircut extends Gate{
         if(J == null){
             return null;
         }
-        console.log(J);
         this.instructionset = J.instructionset;
         this.variables = new Array(J.numberOfVariables);
         this.storage = new Array(J.numberOfStoragePointers);
@@ -1018,12 +1043,23 @@ class IntegratedCircut extends Gate{
     }
     
     constructInstructions(destination){
-
+        var invars = [];
+        var outvars = [];
         for(var n in this.inpNodes){
             this.inpNodes[n].constructInstructions(destination);
+            if(this.inpNodes[n].assignedInputNotation==undefined){
+                invars.push(this.inpNodes[n].assignedVariable);
+            }else{
+                invars.push(this.inpNodes[n].assignedInputNotation);
+            }
+        }
+        for(var n in this.outNodes){
+            
+            outvars.push(this.outNodes[n].assignedVariable);
+        
         }
         //Will need to create a new IC object to execute the instructions, to be loaded again from json. outnodes will need to be calculated somehow.
-        destination.push(["undefined", "EXEC",this.name, this.assignedOutputNodes]);
+        destination.push(["EXEC",this.name,invars,outvars]);
         
 
 
@@ -1064,7 +1100,6 @@ class IntegratedCircut extends Gate{
         for(var i in this.i){
             this.i[i].assignedInputNotation = i;
         }
-        console.log(this.i);
         for(var g in this.gates){
             
             for(var n in this.gates[g].outNodes){

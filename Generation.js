@@ -103,9 +103,7 @@ function passTest(circut, inputs){
     }
     circut.x=-1000;
     circut.y=-1000;
-    circut.update();
-    circut.update();
-    circut.update();
+    circut.passthrough();
     for(var i = 0 ; i < circut.outNodes.length;i++){
         circut.outputs[i]=circut.outNodes[i].value;
     }
@@ -118,10 +116,11 @@ function startSpinner(){
 }
 
 async function generateTruthTable(name){
-    if(workingIntegrationCircut==undefined){
-        var c = new IntegratedCircut();
-        c.place();
+    if(true){
+        var c = new IntegratedCircut(-1000,-1000);
+        
         c.loadFromJson(name);
+        c.place();
         c.name=name;
     }else{
         var c = workingIntegrationCircut.copy();
@@ -140,7 +139,7 @@ async function generateTruthTable(name){
             th.innerHTML="Input<sub>"+i+"</sub>";
             header.appendChild(th);
         }
-        for(var i = 0 ; i < c.s_outputs.length;i++){
+        for(var i = 0 ; i < c.outNodes.length;i++){
             var th = document.createElement("th");
             th.innerHTML="Output<sub>"+i+"</sub>";
             header.appendChild(th);
@@ -196,7 +195,6 @@ function loadICUIElements(){
     ttable = document.getElementById("truthTable");
 
     for(var key in localStorage){
-        console.log(key);
         if(key.startsWith("cc_")){
             list.appendChild(createDefaultICUIElement(key.substring(3,key.length)));
         }
