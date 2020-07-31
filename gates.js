@@ -746,8 +746,12 @@ class SRFlipFlop extends Gate{
 
         this.inpNodes[0].constructInstructions(destination);
 
-        destination.push([this.storagePointer]);
+        //destination.push([this.inpNodes[0].assignedVariable, "AND", this.inpNodes[1].assignedVariable, this.storagePointer]);
+        //destination.push([this.inpNodes[2].assignedVariable, "AND", this.inpNodes[1].assignedVariable, this.storagePointer]);
 
+
+        //destination.push([this.storagePointer, "=", this.storagePointer, this.outNodes[0].assignedVariable]);
+        destination.push([this.inpNodes[0].assignedVariable,"SRFLIP",this.inpNodes[1].assignedVariable,this.storagePointer,this.inpNodes[2].assignedVariable,this.outNodes[0].assignedVariable]);
     
     }
     copy(){
@@ -939,6 +943,8 @@ class IntegratedCircut extends Gate{
                 if(typeof instruction[0] == "string"){
                     if(instruction[0].startsWith("i")){
                         op1 = this.inputs[parseInt(instruction[0].substring(1,instruction[0].length))];
+                    }else if (instruction[0].startsWith("s")){
+                        op1 = this.storage[parseInt(instruction[0].substring(1,instruction[0].length))];
                     }
                 }
                 else{
@@ -948,30 +954,65 @@ class IntegratedCircut extends Gate{
                 if(typeof instruction[2] == "string"){
                     if(instruction[2].startsWith("i")){
                         op2 = this.inputs[parseInt(instruction[2].substring(1,instruction[2].length))];
-
+                    }else if(instruction[2].startsWith("s")){
+                        op2 = this.storage[parseInt(instruction[2].substring(1,instruction[2].length))];
                     }
                 }else{
                     op2 = this.variables[instruction[2]];
                 }
-                dest = instruction[3];
+                var destloc;
+                if(typeof instruction[3] == "string"){
+                    if(instruction[3].startsWith("s")){
+                        dest = parseInt(instruction[3].substring(1,instruction[3].length));
+                        destloc = this.storage;
+                    }
+                }else{
+
+                    dest = instruction[3];
+                    destloc=this.variables;
+                }
 
 
                 switch(operation){
                     case "!":
-                        this.variables[dest] = !op1;
+                        destloc[dest] = !op1;
                         break;
                     case "OR":
-                        this.variables[dest] = op1 || op2;
+                        destloc[dest] = op1 || op2;
                         break;
                     case "AND":
-                        this.variables[dest] = op1 && op2;
+                        destloc[dest] = op1 && op2;
                         break;
                     case "XOR":
-                        this.variables[dest] = Boolean(op1 ^ op2);
+                        destloc[dest] = Boolean(op1 ^ op2);
                         break;
                     case "=":
-                        this.variables[dest] = op1;
+                        destloc[dest] = op1;
                         break;
+                    case "SRFLIP":
+                        var arg3;
+                        if(typeof instruction[4] == "string"){
+                            if(instruction[4].startsWith("i")){
+                                arg3 = this.inputs[parseInt(instruction[4].substring(1,instruction[4].length))];
+                            }else if (instruction[4].startsWith("s")){
+                                arg3 = this.storage[parseInt(instruction[4].substring(1,instruction[4].length))];
+                            }
+                        }
+                        else{
+                            arg3 = this.variables[instruction[4]];
+                        }
+
+
+                        if(arg3&&op2){
+                            destloc[dest] = false;
+                        }
+                        if(op1){
+                            destloc[dest] = op2;
+                        }
+                        this.variables[instruction[5]] = destloc[dest];
+                        break;
+
+
                     default:
                         console.log("Unkown Operator: "+operation);
                         break;
@@ -1109,7 +1150,8 @@ class IntegratedCircut extends Gate{
             }
             
             if(this.gates[g].constructor.name == "SRFlipFlop"){
-                this.gates[g].storagePointer = numberOfStoragePointers;
+                this.gates[g].storagePointer = "s"+numberOfStoragePointers;
+                numberOfStoragePointers++;
             }
         }
         for(var g in this.gates){
