@@ -1,4 +1,11 @@
+/*
+- Fix weird wire nonsense
+- Fix collision holes
+- Fix selection area problems
 
+
+
+*/
 
 var gates = [];
 var wires = []; //holds pointers to wires also in gates
