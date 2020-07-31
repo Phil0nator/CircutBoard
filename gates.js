@@ -11,11 +11,20 @@ class Node{
         this.isInput = isInput;
 
     }
-    createJSON(){
-        var out = {};
-        out[this.constructor.name] = [this.x,this.y];
-        return out;
+    constructInstructions(destination){
+    
+        for(var w in this.wires){
+            if(this.wires[w].nodeA !== this){
+                this.wires[w].nodeA.gate.constructInstructions(destination);
+            }else{
+                this.wires[w].nodeB.gate.constructInstructions(destination);
+            }
+        }
+    
+    
+    
     }
+    
 
     updateWires(){
         for(var wire in this.wires){
@@ -65,8 +74,17 @@ class Gate{
         this.needsUpdate = true;
 
 
+        
+
     }
     
+
+
+    constructInstructions(destination){
+        console.log("something is wrong");
+    }
+
+
     createJSON(){
         var out = {};
         out[this.constructor.name] = [this.x,this.y];
@@ -106,28 +124,7 @@ class Gate{
         //delete this;
     }
 
-    integratedUpdate(){
-        for(var node in this.inpNodes){
-            this.inputs[node] = this.inpNodes[node].value;
-            
-        }
-        
-        this.passthrough();
-        
-        //this.draw(overlay);
-        for(var node in this.inpNodes){
-            this.inpNodes[node].updateWires();
-        }
-        for (var node in this.outNodes){
-            this.outNodes[node].value = this.outputs[node];
-            this.outNodes[node].updateWires();
-        }
-        if(!fullRedraw){
-            fullRedraw=true;
-        }
-
-        this.needsUpdate=false;
-    }
+    
 
     update(){
         //this.needsUpdate||fullRedraw
@@ -282,6 +279,15 @@ class NotGate extends Gate{
         this.hboxw = 60;
         
     }
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+
+        destination.push([this.inpNodes[0].assignedVariable,"!",this.inpNodes[0].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
+    }
 
     place(){
         if(this.inpNodes[0] == undefined){
@@ -335,6 +341,20 @@ class OrGate extends Gate{
         this.hboxh = 60;
         this.hboxw = OrGatew;
     }
+
+
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+        this.inpNodes[1].constructInstructions(destination);
+
+        destination.push([this.inpNodes[0].assignedVariable,"OR",this.inpNodes[1].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
+    }
+
+
     copy(){
         var out = new OrGate(this.x,this.y);
         out.place();
@@ -393,6 +413,16 @@ class AndGate extends Gate{
         this.hboxw = OrGatew;
         this.hboxh = 60;
     }
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+        this.inpNodes[1].constructInstructions(destination);
+
+        destination.push([this.inpNodes[0].assignedVariable,"AND",this.inpNodes[1].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
+    }
     copy(){
         var out = new AndGate(this.x,this.y);
         out.place();
@@ -448,6 +478,15 @@ class XORGate extends Gate{
         super(x,y);
         this.hboxw = OrGatew;
         this.hboxh = 60;
+    }
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+        this.inpNodes[1].constructInstructions(destination);
+        destination.push([this.inpNodes[0].assignedVariable,"XOR",this.inpNodes[1].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
     }
     copy(){
         var out = new XORGate(this.x,this.y);
@@ -516,7 +555,14 @@ class PIN extends Gate{
         this.hboxh = node_r*4;
         this.isInputPin = true;
     }
+    constructInstructions(destination){
+        
+
+
+        //destination.push(["i"+this.outNodes[0].assignedInputNotation]);
+
     
+    }
     place(){
         if(this.outNodes[0] == undefined){
             this.outNodes = [new Node(this.x+10,this.y+10, this,false)];
@@ -632,6 +678,15 @@ class WireNode extends Gate{
         this.hboxw = 60;
         
     }
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+
+        destination.push([this.inpNodes[0].assignedVariable,"=",this.inpNodes[0].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
+    }
     copy(){
         var out = new WireNode(this.x,this.y);
         out.place();
@@ -686,7 +741,15 @@ class SRFlipFlop extends Gate{
         this.hboxh = 100;
         
     }
+    constructInstructions(destination){
+        
 
+        this.inpNodes[0].constructInstructions(destination);
+
+        destination.push([this.storagePointer]);
+
+    
+    }
     copy(){
         var out = new SRFlipFlop(this.x,this.y);
         out.place();
@@ -782,38 +845,146 @@ function nodeSort(a,b){
 
 
 }
-class IntegratedCircut{
-
-    constructor(){
-        //hybrid
-        this.gates= [];
-        this.wires = [];
-        //for saving only
-        this.s_inputs = [];
-        this.s_outputs = [];
-
-        //for runtime
-        this.inpNodes = [];
-        this.outNodes = [];
-        this.inputs = [];
-        this.outputs = [];
-
-        this.width = IC_Width;
-        this.x=0;
-        this.y=0;
-        this.name = "IntegratedCircut";
-        this.needsUpdate = false;
 
 
-        this.isIntegrated = true;
+
+
+
+class IntegratedCircut extends Gate{
+
+    constructor(x,y){
+        super(x,y);
+        this.hboxw = 100;
+        this.hboxh = 100;
+        this.storage = [];
+        this.variables = [];
+        this.i=[];
+        this.o=[];
+        this.instructionset=[];
+        this.outputThroughPointers=[];
+        this.wires=[];
+        this.gates=[];
+        this.width = 100;
+        this.height;
+
     }
 
     copy(){
         var out = new IntegratedCircut();
-        out.loadFromJson(this.name);
-        out.x=this.x;
-        out.y=this.y;
+        out.place();
         return out;
+    }
+
+    place(){
+        if(this.inpNodes[0] == undefined){
+            this.i.sort(nodeSort);
+            this.o.sort(nodeSort);
+            for(var n in this.i){
+                this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/this.i),this,true));
+            }
+            for(var n in this.o){
+                this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/this.o),this,false));
+            }
+        }else{
+            for(var n in this.inpNodes){
+                this.inpNodes[n].set(this.x,this.y+25+n*(this.height/this.i));
+            }
+            for(var n in this.outNodes){
+                this.outNodes[n].set(this.x+this.width,this.y+n*(this.height/this.o));
+            }
+        }
+    }
+    passthrough(){
+        for(var n in this.inpNodes){
+            this.inputs[n] = this.inpNodes[n].value;
+        }
+        this.variables = new Array(this.variables.length);
+        for(var p in this.instructionset){
+            for(var inst in this.instructionset[p]){
+
+                let instruction = this.instructionset[p][inst];
+                if(instruction == undefined){
+                    continue;
+                }
+                var operation = instruction[1];
+                var op1;
+                var op2;
+                var dest;
+                if(typeof instruction[0] == "string"){
+                    if(instruction[0].startsWith("i")){
+                        op1 = this.inputs[parseInt(instruction[0].substring(1,instruction[0].length))];
+                    }
+                }
+                else{
+                    op1 = this.variables[instruction[0]];
+                }
+
+                if(typeof instruction[2] == "string"){
+                    if(instruction[2].startsWith("i")){
+                        op2 = this.inputs[parseInt(instruction[2].substring(1,instruction[2].length))];
+
+                    }
+                }else{
+                    op2 = this.variables[instruction[2]];
+                }
+                dest = instruction[3];
+
+
+                switch(operation){
+                    case "!":
+                        this.variables[dest] = !op1;
+                        break;
+                    case "OR":
+                        this.variables[dest] = op1 || op2;
+                        break;
+                    case "AND":
+                        this.variables[dest] = op1 && op2;
+                        break;
+                    case "XOR":
+                        this.variables[dest] = Boolean(op1 ^ op2);
+                        break;
+                    case "=":
+                        this.variables[dest] = op1;
+                        break;
+                    default:
+                        console.log("Unkown Operator: "+operation);
+                        break;
+
+                }
+
+
+
+
+
+            }
+        }
+        for(var p in this.outputThroughPointers){
+            this.outputs[p] = this.variables[this.outputThroughPointers[p]];
+            this.outNodes[p].value = this.outputs[p];
+        }
+
+
+
+    }
+    gethbox(){
+        return [this.x,this.y,this.width,this.height];
+    }
+    drawfordrag(){
+        scale(scalar);
+        rect(this.x,this.y,100,this.height);
+    }
+
+
+    draw(overlay){
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+
+        overlay.fill(255);
+        overlay.rect(this.x,this.y,100,this.height);
+        overlay.fill(0);
+        overlay.text(this.name.substring(3,this.name.length),this.x,this.y,this.width,this.height);
     }
 
     loadFromJson(name){
@@ -824,283 +995,119 @@ class IntegratedCircut{
             return null;
         }
         console.log(J);
-
-        for(var g in J.gates){
-            var gate;
-            var gname;
-            for(var key in J.gates[g]){
-                gname=key;
-            }
-            var coords = [J.gates[g][gname][0],J.gates[g][gname][1]];
-            switch (gname){
-                case "XORGate":
-                    gate = new XORGate(coords[0],coords[1]);
-                    break;
-                case "NotGate":
-                    gate = new NotGate(coords[0],coords[1]);
-                    break;
-                case "AndGate":
-                    gate = new AndGate(coords[0],coords[1]);
-                    break;
-                case "OrGate":
-                    gate = new OrGate(coords[0],coords[1]);
-                    break;
-                case "WireNode":
-                    gate = new WireNode(coords[0],coords[1]);
-                    break;
-                case "IntegratedCircut":
-                    gate = new IntegratedCircut();
-                    gate.loadFromJson(J.gates[g][gname][2]);
-                    gate.x=coords[0];
-                    gate.y=coords[1];
-                    break;
-            }
-            gate.place();
-            this.gates.push(gate);
-
+        this.instructionset = J.instructionset;
+        this.variables = new Array(J.numberOfVariables);
+        this.storage = new Array(J.numberOfStoragePointers);
+        this.outputThroughPointers = J.outputThroughPointers;
+        this.i=J.i;
+        this.o=J.o;
+       
+        //this.place();
+        for(var n = 0; n < J.i;n++){
+            this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/J.i),this,true));
+        }
+        for(var n = 0; n < J.o;n++){
+            this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/J.o),this,false));
         }
 
-
-        for(var n in J.inputs){
-            this.inpNodes.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1],this,true));
-            this.s_inputs.push(new Node(J.inputs[n]["Node"][0],J.inputs[n]["Node"][1],this,true));
+        if(this.i>this.o){
+            this.height = this.i*25;
+        }else{
+            this.height = this.o*25;
         }
-        for(var n in J.outputs){
-            this.outNodes.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1],this,false));
-            this.s_outputs.push(new Node(J.outputs[n]["Node"][0],J.outputs[n]["Node"][1],this,false));
+    }
+    
+    constructInstructions(destination){
+
+        for(var n in this.inpNodes){
+            this.inpNodes[n].constructInstructions(destination);
         }
-        this.prep();
-        console.log(this);
+        //Will need to create a new IC object to execute the instructions, to be loaded again from json. outnodes will need to be calculated somehow.
+        destination.push(["undefined", "EXEC",this.name, this.assignedOutputNodes]);
+        
 
-        for(var w in J.wires){
 
-            var wire = new Wire(undefined,undefined);
-            wire.nodeA = new Node(J.wires[w]["Wire"][0],J.wires[w]["Wire"][1]);
-            wire.nodeB = new Node(J.wires[w]["Wire"][2],J.wires[w]["Wire"][3]);
+    }
 
-            var copiedWire = new Wire(undefined,undefined);
-            //newCircut.wires.push(wire);
+    generateInstructions(){
+        
+        //The instructions will act like an assembly type sudo language used to determine outputs based on inputs
+        //Each node of each gate will be given a variable
+        //The function used to determine these variables will be determined by stepping back through the circut recursively.
+        //Each instruction will take the form ["vA", "operand", "vB", "destination variable"]
+        //Instructions will be executed in order
+        //For example, and XOR gate:
+        //["the xor gate input 1 variable", "^", "the xor gate input 2 variable", "the xor gate output variable"]
+        //overall inputs to the system will be denoted as "i#", # meaning the index of the input node
+        //storage of the system will be denoted as "s#", # meaning the index of the stored value in this IC's storage array
+        //Each variable will be represented by a number, which is an index in the array containing variables
+        
 
-            //reconstruct wires with correct references
+        if(this.i.length>this.o.length){
+            this.height = this.i.length*25;
+        }else{
+            this.height = this.o.length*25;
+        }
+        
 
-            //input nodes
-            for(var n in this.s_inputs){
-                var x = this.s_inputs[n].x;
-                var y = this.s_inputs[n].y;
+
+        this.i.sort(nodeSort);
+        this.o.sort(nodeSort);
+
+
+
+
+
+
+        var numberOfVariables = 0;
+        var numberOfStoragePointers = 0;
+        for(var i in this.i){
+            this.i[i].assignedInputNotation = i;
+        }
+        console.log(this.i);
+        for(var g in this.gates){
+            
+            for(var n in this.gates[g].outNodes){
+                this.gates[g].outNodes[n].assignedVariable = numberOfVariables;
                 
-                if(wireNodeConnectionTest(wire,x,y,true)){
-                    copiedWire.nodeA = this.inpNodes[n];
-                    copiedWire.nodeA.gate=copiedWire;
-                }
-                else if(wireNodeConnectionTest(wire,x,y,false)){
-                    copiedWire.nodeB = this.inpNodes[n];
-                    copiedWire.nodeB.gate=copiedWire;
-                }
-            }
-
-            //output nodes
-            for(var n in this.s_outputs){
-                var x = this.s_outputs[n].x;
-                var y = this.s_outputs[n].y;
-                if(wireNodeConnectionTest(wire,x,y,true)){
-                    copiedWire.nodeA = this.outNodes[n];
-                    copiedWire.nodeA.gate=copiedWire;
-
-                }
-                else if(wireNodeConnectionTest(wire,x,y,false)){
-                    copiedWire.nodeB = this.outNodes[n];
-                    copiedWire.nodeB.gate=copiedWire;
-
-                }
-            }
-            //inside gates
-            for(var gate in this.gates){
-
-                //gate inps
-                for(var n in this.gates[gate].inpNodes){
-                    var x = this.gates[gate].inpNodes[n].x;
-                    var y = this.gates[gate].inpNodes[n].y;
-                    if(wireNodeConnectionTest(wire,x,y,true)){
-                        copiedWire.nodeA = this.gates[gate].inpNodes[n];
-                    }
-                    else if(wireNodeConnectionTest(wire,x,y,false)){
-                        copiedWire.nodeB = this.gates[gate].inpNodes[n];
-                    }
-                }
-
-                //gate outs
-                for(var n in this.gates[gate].outNodes){
-                    var x = this.gates[gate].outNodes[n].x;
-                    var y = this.gates[gate].outNodes[n].y;
-                    if(wireNodeConnectionTest(wire,x,y,true)){
-                        copiedWire.nodeA = this.gates[gate].outNodes[n];
-                    }
-                    else if(wireNodeConnectionTest(wire,x,y,false)){
-                        copiedWire.nodeB = this.gates[gate].outNodes[n];
-                    }
-                }
-            }
-            console.log(copiedWire);
-            //satisfy other end of references for re-construction
-            copiedWire.place();
-            copiedWire.nodeA.wires.push(copiedWire);
-            copiedWire.nodeB.wires.push(copiedWire);
-            this.wires.push(copiedWire);
-
-        }
-        console.log(this);
-    }
-
-    createJSON(){
-        var out = {};
-        out[this.constructor.name] = [this.x,this.y, this.name];
-        return out;
-    }
-
-    drawfordrag(){
-        scale(scalar);
-        fill(255);
-        rect(this.x,this.y,this.width,this.height);
-        textSize(15);
-        text(this.name,this.x,this.y,this.width,this.height);
-
-    }
-    gethbox(){
-        return [this.x,this.y,this.width,this.height];
-    }
-
-    draw(overlay){
-        if(overlay == undefined){
-            this.drawfordrag();
-            return;
-        }
-        overlay.fill(255);
-        overlay.rect(this.x,this.y,this.width,this.height);
-        overlay.textSize(15);
-        overlay.fill(0);
-        overlay.text(this.name.substring(3,this.name.length),this.x,this.y,this.width,this.height);
-        
-
-
-
-    }
-
-    integratedUpdate(){
-        if(this.inpNodes != []){
-            for(var node in this.inpNodes){
-                this.inputs[node] = this.inpNodes[node].value;
+                numberOfVariables++;
             }
             
-            this.passthrough();
+            if(this.gates[g].constructor.name == "SRFlipFlop"){
+                this.gates[g].storagePointer = numberOfStoragePointers;
+            }
+        }
+        for(var g in this.gates){
+            for(var n in this.gates[g].inpNodes){
+
+                this.gates[g].inpNodes[n].assignedVariable = this.gates[g].inpNodes[n].wires[0].nodeA.assignedVariable;
+                if(this.gates[g].inpNodes[n].assignedVariable == undefined){
+                    this.gates[g].inpNodes[n].assignedVariable = "i"+this.gates[g].inpNodes[n].wires[0].nodeA.assignedInputNotation;
+                }    
+            }
+        }
+        this.variables = new Array(numberOfVariables);
+        this.storage = new Array(numberOfStoragePointers);
+        this.outputThroughPointers = new Array(this.o.length);
+        for(var o in this.o){
+            this.outputThroughPointers[o]=this.o[o].wires[0].nodeA.assignedVariable;
+            this.instructionset.push([]);
+            this.o[o].constructInstructions(this.instructionset[this.instructionset.length-1]);
             
-            for(var node in this.inpNodes){
-                this.inpNodes[node].updateWires();
-            }
-            for (var node in this.outNodes){
-                this.outputs[node] = this.outNodes[node].value;
-                this.outNodes[node].updateWires();
-            }
-            if(!fullRedraw){
-                fullRedraw=true;
-            }
 
-            this.needsUpdate=false;
-        }else{
-            console.log("issues")
-        }
-    }
 
-    passthrough(){
 
-        for(var gate in this.gates){
-            this.gates[gate].integratedUpdate();
+
         }
-        for(var wire in this.wires){
-            this.wires[wire].integratedUpdate();
-        }
+        console.log(this.instructionset);
+        console.log(this.variables);
+        console.log(this.outputThroughPointers);
+        console.log(this.storage);
         
 
-    }
-    cleanup(){
-        //this.inpNodes=undefined;
-        //this.outNodes=undefined;
-        
-        
-        var chunk = getMChunk();
-        if(chunk.indexOf(this)==-1){
-            return;
-        }else{
-            chunk.splice(chunk.indexOf(this),1);
-        }
-        
-        //delete this;
+
     }
 
-
-    update(){
-        //this.needsUpdate||fullRedraw
-        if(this.inpNodes != []){
-            for(var node in this.inpNodes){
-                this.inputs[node] = this.inpNodes[node].value;
-            }
-            
-            this.passthrough();
-            
-            this.draw(overlay);
-            for(var node in this.inpNodes){
-                this.inpNodes[node].draw();
-                this.inpNodes[node].updateWires();
-            }
-            for (var node in this.outNodes){
-                this.outNodes[node].draw();
-                this.outputs[node] = this.outNodes[node].value;
-                this.outNodes[node].updateWires();
-            }
-            if(!fullRedraw){
-                fullRedraw=true;
-            }
-
-            this.needsUpdate=false;
-        }else{
-            console.log("issues")
-        }
-    }
-
-
-    place(){
-        if(this.inpNodes[0] == undefined){
-            for(var n in this.s_inputs){
-                this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/this.s_inputs.length),this,true));
-            }
-            for(var n in this.s_outputs){
-                this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/this.s_outputs.length),this,false));
-            }
-        }else{
-            for(var n in this.s_inputs){
-                this.inpNodes[n].set(this.x,this.y+25+n*(this.height/this.s_inputs.length));
-            }
-            for(var n in this.s_outputs){
-                this.outNodes[n].set(this.x+this.width,this.y+n*(this.height/this.s_outputs.length));
-            }
-        }
-        this.s_inputs=this.inpNodes;
-        this.s_outputs = this.outNodes;
-    }
-
-    prep(){
-        this.s_inputs.sort(nodeSort);
-        this.s_outputs.sort(nodeSort);
-        if(this.s_inputs.length>this.s_outputs.length){
-            this.height = this.s_inputs.length*25;
-        }else{
-            this.height = this.s_outputs.length*25;
-        }
-        
-        
-    }
-    getNodes(){
-        return [this.inpNodes,this.outNodes];
-    }
 
 }
 

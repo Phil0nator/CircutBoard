@@ -6,6 +6,7 @@ function createNewCircutModal(){
 
     modaldiv = document.getElementById("integratedCircutConfig");
     maindiv = document.getElementById("icc-main");
+    if(workingIntegrationCircut.name!=undefined)
     document.getElementById("icc-name").value = workingIntegrationCircut.name.substring(3,workingIntegrationCircut.name.length);
     maindiv.innerHTML="";
     _mode_ = CursorModes.EDIT;
@@ -36,28 +37,15 @@ function newCircut_Cancel(){
 function saveIntegratedCircut(circut, name){
 
     if(name == "" || name == undefined)return;
-    var gates = circut.gates;
-    var wires = circut.wires;
     var output = {};
-    output.gates = [];
-    output.wires = [];
-    output.inputs = [];
-    output.outputs = [];
-    for(var g in gates){
-        //console.log(gates[g].createJSON());
-        if(!gates[g].isInputPin&&!gates[g].isLEDOut)
-        output.gates.push(gates[g].createJSON());
-    }
-    for(var w in wires){
-        output.wires.push(wires[w].createJSON());
-    }
-    for(var n in circut.s_inputs){
-        output.inputs.push(circut.s_inputs[n].createJSON());
-    }
-    for(var n in circut.s_outputs){
-        output.outputs.push(circut.s_outputs[n].createJSON());
-    }
+
     
+    output.instructionset = circut.instructionset;
+    output.numberOfVariables = circut.variables.length;
+    output.storageSize = circut.storage.length;
+    output.outputThroughPointers = circut.outputThroughPointers;
+    output.i = circut.i.length;
+    output.o = circut.o.length;
     
 
     localStorage.setItem("cc_"+name,JSON.stringify(output));
@@ -180,7 +168,7 @@ async function finishTruthTableOp(len,array,oarrtest,c,table){
 
 
 function getIntegratedCircut(name){
-    circutInHand = new IntegratedCircut();
+    circutInHand = new IntegratedCircut(0,0);
     circutInHand.loadFromJson(name);
     circutInHand.name=name;
 }
