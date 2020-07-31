@@ -217,6 +217,7 @@ function handleTimedEvents(){
 
     if(justPlacedWire&&Date.now()-lastWirePlace>100){
         justPlacedWire=false;
+        lastWirePlace = Date.now();
     }
 
 
@@ -240,6 +241,8 @@ function handleTimedEvents(){
 function placeGate(gate){
     if(gate.isWire){
         gate.place();
+        lastWirePlace = Date.now();
+        justPlacedWire = true;
         return;
     }
     var indx = round(gate.x/(overall_dim/10));
@@ -251,8 +254,7 @@ function placeGate(gate){
         
     }
 
-    lastWirePlace = Date.now();
-    justPlacedWire = true;
+    
 
     fullRedraw=true;
     
@@ -406,8 +408,14 @@ function constructCircut(){
         newCircut.wires.push(wires[w]);
     }
 
-    newCircut.constructInstructions();
+    newCircut.generateInstructions();
+    if(newCircut.gates.length<=0){
+        return;
+    }
     workingIntegrationCircut = newCircut;
+    createNewCircutModal();
+    integrationArea = new Array(4);
+    _mode_ = CursorModes.MOVEMENT;
 
 
 

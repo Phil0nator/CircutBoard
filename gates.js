@@ -24,11 +24,7 @@ class Node{
     
     
     }
-    createJSON(){
-        var out = {};
-        out[this.constructor.name] = [this.x,this.y];
-        return out;
-    }
+    
 
     updateWires(){
         for(var wire in this.wires){
@@ -128,28 +124,7 @@ class Gate{
         //delete this;
     }
 
-    integratedUpdate(){
-        for(var node in this.inpNodes){
-            this.inputs[node] = this.inpNodes[node].value;
-            
-        }
-        
-        this.passthrough();
-        
-        //this.draw(overlay);
-        for(var node in this.inpNodes){
-            this.inpNodes[node].updateWires();
-        }
-        for (var node in this.outNodes){
-            this.outNodes[node].value = this.outputs[node];
-            this.outNodes[node].updateWires();
-        }
-        if(!fullRedraw){
-            fullRedraw=true;
-        }
-
-        this.needsUpdate=false;
-    }
+    
 
     update(){
         //this.needsUpdate||fullRedraw
@@ -886,25 +861,43 @@ class IntegratedCircut extends Gate{
         this.i=[];
         this.o=[];
         this.instructionset=[];
-
+        this.outputThroughPointers=[];
         this.wires=[];
         this.gates=[];
+        this.width = 100;
+        this.height;
 
     }
 
     copy(){
-        var out = new SRFlipFlop(this.x,this.y);
+        var out = new IntegratedCircut();
         out.place();
         return out;
     }
 
     place(){
-
-        
-
+        if(this.inpNodes[0] == undefined){
+            this.i.sort(nodeSort);
+            this.o.sort(nodeSort);
+            for(var n in this.i){
+                this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/this.i),this,true));
+            }
+            for(var n in this.o){
+                this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/this.o),this,false));
+            }
+        }else{
+            for(var n in this.inpNodes){
+                this.inpNodes[n].set(this.x,this.y+25+n*(this.height/this.i));
+            }
+            for(var n in this.outNodes){
+                this.outNodes[n].set(this.x+this.width,this.y+n*(this.height/this.o));
+            }
+        }
     }
     passthrough(){
-
+        for(var n in this.inpNodes){
+            this.inputs[n] = this.inpNodes[n].value;
+        }
         this.variables = new Array(this.variables.length);
         for(var p in this.instructionset){
             for(var inst in this.instructionset[p]){
@@ -936,8 +929,6 @@ class IntegratedCircut extends Gate{
                 }
                 dest = instruction[3];
 
-                console.log(instruction);
-                console.log(op1,operation,op2,"=>",dest);
 
                 switch(operation){
                     case "!":
@@ -969,15 +960,18 @@ class IntegratedCircut extends Gate{
         }
         for(var p in this.outputThroughPointers){
             this.outputs[p] = this.variables[this.outputThroughPointers[p]];
+            this.outNodes[p].value = this.outputs[p];
         }
 
 
 
     }
-
+    gethbox(){
+        return [this.x,this.y,this.width,this.height];
+    }
     drawfordrag(){
         scale(scalar);
-        rect(this.x,this.y,100,100);
+        rect(this.x,this.y,100,this.height);
     }
 
 
@@ -987,22 +981,55 @@ class IntegratedCircut extends Gate{
             return;
         }
 
-        if(this.value){
-            overlay.fill(0,255,0);
-
-        }else{
-            overlay.fill(255,0,0)
-        }
-        overlay.rect(this.x,this.y,100,100);
+        overlay.fill(255);
+        overlay.rect(this.x,this.y,100,this.height);
         overlay.fill(0);
+        overlay.text(this.name.substring(3,this.name.length),this.x,this.y,this.width,this.height);
+    }
+
+    loadFromJson(name){
+        this.name=name;
+        var J = localStorage.getItem(this.name);
+        J = JSON.parse(J);
+        if(J == null){
+            return null;
+        }
+        console.log(J);
+        this.instructionset = J.instructionset;
+        this.variables = new Array(J.numberOfVariables);
+        this.storage = new Array(J.numberOfStoragePointers);
+        this.outputThroughPointers = J.outputThroughPointers;
+        this.i=J.i;
+        this.o=J.o;
+       
+        //this.place();
+        for(var n = 0; n < J.i;n++){
+            this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/J.i),this,true));
+        }
+        for(var n = 0; n < J.o;n++){
+            this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/J.o),this,false));
+        }
+
+        if(this.i>this.o){
+            this.height = this.i*25;
+        }else{
+            this.height = this.o*25;
+        }
+    }
+    
+    constructInstructions(destination){
+
+        for(var n in this.inpNodes){
+            this.inpNodes[n].constructInstructions(destination);
+        }
+        //Will need to create a new IC object to execute the instructions, to be loaded again from json. outnodes will need to be calculated somehow.
+        destination.push(["undefined", "EXEC",this.name, this.assignedOutputNodes]);
+        
+
 
     }
 
-
-    
-
-
-    constructInstructions(){
+    generateInstructions(){
         
         //The instructions will act like an assembly type sudo language used to determine outputs based on inputs
         //Each node of each gate will be given a variable
@@ -1016,9 +1043,16 @@ class IntegratedCircut extends Gate{
         //Each variable will be represented by a number, which is an index in the array containing variables
         
 
-
+        if(this.i.length>this.o.length){
+            this.height = this.i.length*25;
+        }else{
+            this.height = this.o.length*25;
+        }
         
 
+
+        this.i.sort(nodeSort);
+        this.o.sort(nodeSort);
 
 
 
