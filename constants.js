@@ -21,7 +21,8 @@ const CursorModes = {
     MOVEMENT: 'Movement',
     EDIT: 'Edit',
     INTERACT: 'Interact',
-    INTEGRATE: "Integrate"
+    INTEGRATE: "Integrate",
+    INMODAL: "Inmodal"
 }
 var _mode_ = CursorModes.MOVEMENT;
 

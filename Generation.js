@@ -9,7 +9,7 @@ function createNewCircutModal(){
     if(workingIntegrationCircut.name!=undefined)
     document.getElementById("icc-name").value = workingIntegrationCircut.name.substring(3,workingIntegrationCircut.name.length);
     maindiv.innerHTML="";
-    _mode_ = CursorModes.EDIT;
+    _mode_ = CursorModes.INMODAL;
     UIkit.modal(modaldiv).show();
 
 }

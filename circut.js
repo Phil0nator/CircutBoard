@@ -531,7 +531,7 @@ function windowResized() {
     resizeCanvas(document.body.clientWidth, document.body.clientHeight);
 }
 function mouseWheel(event) {
-    if(_mode_ == CursorModes.EDIT){
+    if(_mode_ == CursorModes.EDIT||_mode_ == CursorModes.INMODAL){
         return;
     }
     scalar-=5/event.delta;
@@ -622,6 +622,17 @@ function keyReleased(){
 }
 
 function startIntegrationMode(){
+    var gatecount = 0;
+    for(var gate in gates){
+        for(var g in gates[gate]){
+            gatecount++;
+        }
+    }
+    if(gatecount == 0){
+        UIkit.notification({message: 'You must create a circut before integrating.', status:"danger"});
+        return;
+
+    }
     cursor(CROSS);
     if(_mode_ != CursorModes.INTEGRATE){
         _mode_ = CursorModes.INTEGRATE;
