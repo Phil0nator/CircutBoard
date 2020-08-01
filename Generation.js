@@ -202,3 +202,13 @@ function loadICUIElements(){
 
 }
 
+function doSafely(f,args){
+
+    try{
+        f(args);
+    }catch(error){
+        UIkit.notification({message: error, status:"danger"});
+    }
+
+
+}

@@ -74,67 +74,71 @@ function draw(){
     
 
     
-
-    if(fullRedraw){
-        overlay.background(bg_gscale);
-        console.log("full-redraw was needed");
-    }
-
-    for(var gatechunk in gates){
-        for(var gate in gates[gatechunk]){
-            if(gates[gatechunk][gate]!=undefined)
-            gates[gatechunk][gate].update();
+    try{ //anti-hang
+        if(fullRedraw){
+            overlay.background(bg_gscale);
+            console.log("full-redraw was needed");
         }
-    }
-    for(var wire in wires){
-        if(wires[wire].finalized){
-            wires[wire].update();
-        }else{
-            wires[wire].draw(undefined);
-        }
-    }
-    if(fullRedraw){
-        fullRedraw=!fullRedraw;
-    }
 
-
-    pop();
-    handleDrag();
-    //HUD
-
-
-
-
-    
-
-
-    if(circutInHand!=undefined){
-        var hbox = circutInHand.gethbox();
-            fill(50,50,200,100);
-            var x = hbox[0]*scalar;
-            var y = hbox[1]*scalar;
-            var w = hbox[2]*scalar;
-            var h = hbox[3]*scalar;
-            rect(x,y,w,h);
-        if(circutInHand.isWire){
-            circutInHand.tx = mouseX/scalar;
-            circutInHand.ty = mouseY/scalar;
-        }else{
-            if(circutInHand.origined == undefined){
-                circutInHand.x = mouseX/scalar;
-            circutInHand.y = mouseY/scalar;
+        for(var gatechunk in gates){
+            for(var gate in gates[gatechunk]){
+                if(gates[gatechunk][gate]!=undefined)
+                gates[gatechunk][gate].update();
             }
         }
-        circutInHand.draw(undefined);
+        for(var wire in wires){
+            if(wires[wire].finalized){
+                wires[wire].update();
+            }else{
+                wires[wire].draw(undefined);
+            }
+        }
+        if(fullRedraw){
+            fullRedraw=!fullRedraw;
+        }
+
+
+        pop();
+        handleDrag();
+        //HUD
+
+
+
+
+        
+
+
+        if(circutInHand!=undefined){
+            var hbox = circutInHand.gethbox();
+                fill(50,50,200,100);
+                var x = hbox[0]*scalar;
+                var y = hbox[1]*scalar;
+                var w = hbox[2]*scalar;
+                var h = hbox[3]*scalar;
+                rect(x,y,w,h);
+            if(circutInHand.isWire){
+                circutInHand.tx = mouseX/scalar;
+                circutInHand.ty = mouseY/scalar;
+            }else{
+                if(circutInHand.origined == undefined){
+                    circutInHand.x = mouseX/scalar;
+                circutInHand.y = mouseY/scalar;
+                }
+            }
+            circutInHand.draw(undefined);
+        }
+
+        if(_mode_ == CursorModes.INTEGRATE){
+            drawIntegrationArea();
+
+        }
+
+        handleMouseOverNodes();
+    }catch(error){
+
+        UIkit.notification({message: error, status:"danger"});
+
     }
-
-    if(_mode_ == CursorModes.INTEGRATE){
-        drawIntegrationArea();
-
-    }
-
-    handleMouseOverNodes();
-
 
 }
 
@@ -165,10 +169,16 @@ function draw(){
 function handleMouseOverNodes(){
 
     
-    var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-    var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+    var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
+    var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
     var mx = (-translationx/scalar+mouseX/scalar);
     var my = (-translationy/scalar+mouseY/scalar);
+
+    
+    //overlay.fill(100,100,255,100);
+    //overlay.rect(indx*(overall_dim/10),indy*(overall_dim/10),overall_dim/10,overall_dim/10);
+
+
     for(var g in gates[indx+indy*10]){
         if(gates[indx+indy*10][g]==undefined){
             continue;
@@ -252,8 +262,10 @@ function placeGate(gate){
         justPlacedWire = true;
         return;
     }
-    var indx = round(gate.x/(overall_dim/10));
-    var indy = round(gate.y/(overall_dim/10));
+    var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
+    var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
+    var mx = (-translationx/scalar+mouseX/scalar);
+    var my = (-translationy/scalar+mouseY/scalar);
     gates[indx+indy*10].push(gate);
     gate.place();
     for(var wire in wires){
@@ -466,8 +478,8 @@ function mouseReleased(){
     TODO: Occasional misdetection when circuts are placed on the line between chunks
     */
     if(circutInHand==undefined&&nodeInHand==undefined&&!justPlacedWire){
-        var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-        var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+        var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
+        var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
         var mx = (-translationx/scalar+mouseX/scalar);
         var my = (-translationy/scalar+mouseY/scalar);
 
