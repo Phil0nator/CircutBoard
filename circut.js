@@ -41,13 +41,17 @@ function setup(){
 function getMChunk(){
     var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
     var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
-    let out = gates[indx+indy*10];
+    let indexA = indx+indy*10;
+    if(indexA > 99 || indexA < 0)return [];
+    let out = gates[indexA];
     for(let i = -1; i < 2;i++){
 
         for(let j = -1; j < 2; j++){
-
-            out = out.concat(gates[indx+i+(indy+j)*10]);
-
+            let index = indx+i+(indy+j)*10;
+            if(index < 100 && index > -1){
+                out = out.concat(gates[index]);
+            }
+            
         }
 
     }
@@ -106,7 +110,7 @@ function draw(){
             if(wires[wire].finalized){
                 wires[wire].update();
             }else{
-                wires[wire].draw(undefined);
+                //wires[wire].draw(undefined);
             }
         }
         if(fullRedraw){

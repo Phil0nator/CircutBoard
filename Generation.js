@@ -323,6 +323,13 @@ function createStateFromFile(data){
         UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
         return;
     }
+
+
+    if(!confirm("This will overwrite your current workplane, and will update IC's")){
+        return;
+    }
+
+
     var input = data.substring(12,data.length);
     var J = JSON.parse(input);
     console.log(J);
@@ -332,6 +339,19 @@ function createStateFromFile(data){
     for(let i = 0; i < 100; i++){
         gates.push([]);
     }
+
+
+
+    for(let IC in J.integratedCircuts){
+        localStorage.setItem(IC,J.integratedCircuts[IC]);
+    }
+
+
+
+
+
+
+
     for(let g in J.gates){
         let type = J.gates[g].type;
         let x = J.gates[g].coords[0];
