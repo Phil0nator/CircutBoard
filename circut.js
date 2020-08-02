@@ -41,7 +41,17 @@ function setup(){
 function getMChunk(){
     var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
     var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
-    return gates[indx+indy*10];
+    let out = gates[indx+indy*10];
+    for(let i = -1; i < 2;i++){
+
+        for(let j = -1; j < 2; j++){
+
+            out = out.concat(gates[indx+i+(indy+j)*10]);
+
+        }
+
+    }
+    return out;
 }
 
 
@@ -176,22 +186,19 @@ function draw(){
 
 function handleMouseOverNodes(){
 
-    
-    var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
-    var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
+
     var mx = (-translationx/scalar+mouseX/scalar);
     var my = (-translationy/scalar+mouseY/scalar);
-
     
     //overlay.fill(100,100,255,100);
     //overlay.rect(indx*(overall_dim/10),indy*(overall_dim/10),overall_dim/10,overall_dim/10);
+    var currentChunk = getMChunk();
 
-
-    for(var g in gates[indx+indy*10]){
-        if(gates[indx+indy*10][g]==undefined){
+    for(var g in currentChunk){
+        if(currentChunk[g]==undefined){
             continue;
         }
-        var hbox = gates[indx+indy*10][g].gethbox();
+        var hbox = currentChunk[g].gethbox();
         var x = hbox[0];
         var y = hbox[1];
         x-=10;
@@ -202,7 +209,7 @@ function handleMouseOverNodes(){
         h+=10;
         if(mx>x&&mx<x+w&&my>y&&my<y+h){
             
-            var allnodes = gates[indx+indy*10][g].getNodes();
+            var allnodes = currentChunk[g].getNodes();
             for(var i = 0; i < 2;i++){
                 for(var node in allnodes[i]){
                     if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r){
@@ -275,9 +282,10 @@ function placeGate(gate){
     }
     var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
     var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
-    var mx = (-translationx/scalar+mouseX/scalar);
-    var my = (-translationy/scalar+mouseY/scalar);
+    
     gates[indx+indy*10].push(gate);
+    gate.indx=indx;
+    gate.indy=indy;
     gate.place();
     for(var wire in wires){
         wires[wire].needsUpdate = true;
@@ -501,20 +509,18 @@ function mouseReleased(){
     TODO: Occasional misdetection when circuts are placed on the line between chunks
     */
     if(circutInHand==undefined&&nodeInHand==undefined&&!justPlacedWire){
-        var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
-        var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
+        let currentChunk = getMChunk();
         var mx = (-translationx/scalar+mouseX/scalar);
         var my = (-translationy/scalar+mouseY/scalar);
-
-        for(var g in gates[indx+indy*10]){
-            var hbox = gates[indx+indy*10][g].gethbox();
+        for(var g in currentChunk){
+            var hbox = currentChunk[g].gethbox();
             var x = hbox[0];
             var y = hbox[1];
             var w = hbox[2]/scalar;
             var h = hbox[3]/scalar;
             if(mx>x&&mx<x+hbox[2]&&my>y&&my<y+hbox[3]){
                 _mode_ = CursorModes.EDIT;
-                circutInHand = gates[indx+indy*10][g];
+                circutInHand = currentChunk[g];
                 fullRedraw = true;
                 circutInHand.cleanup();
                 cursor('grab');

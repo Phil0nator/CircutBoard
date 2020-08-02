@@ -24,7 +24,7 @@ class Node{
      * @param {Array} destination 
      */
     constructInstructions(destination){
-    
+        
         for(var w in this.wires){
             if(this.wires[w].nodeA !== this){
                 this.wires[w].nodeA.gate.constructInstructions(destination);
@@ -168,8 +168,11 @@ class Gate{
         //this.inpNodes=undefined;
         //this.outNodes=undefined;
         
-        
-        var chunk = getMChunk();
+        if(this.indx==undefined||this.indy==undefined){
+            
+            return;
+        }
+        var chunk = gates[this.indx+this.indy*10];
         if(chunk.indexOf(this)==-1){
             return;
         }else{
@@ -931,6 +934,7 @@ class IntegratedCircut extends Gate{
         this.gates=[];
         this.width = 100;
         this.height;
+        this.isIntegrated = true;
 
     }
 

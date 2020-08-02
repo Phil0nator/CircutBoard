@@ -267,6 +267,10 @@ async function createSaveFile(){
             var gate = gates[chunk][g];
             gate.id = inc; 
             inc++;
+            if(gate.isIntegrated == true){
+                output.gates.push({type: gate.name, coords: [gate.x,gate.y], id: gate.id});
+                continue
+            }
             output.gates.push({type: gate.constructor.name, coords: [gate.x,gate.y], id: gate.id});
         }
     }
@@ -276,6 +280,7 @@ async function createSaveFile(){
         let nodeBInfo = wires[w].nodeB.gate.inpNodes.indexOf(wires[w].nodeB);
         let nodeAID = wires[w].nodeA.gate.id;
         let nodeBID = wires[w].nodeB.gate.id;
+
         output.wires.push({nodeA_ID: nodeAID,nodeB_ID: nodeBID, nodeA_index: nodeAInfo, nodeB_index:nodeBInfo});
 
     }
@@ -321,6 +326,76 @@ function createStateFromFile(data){
     var input = data.substring(12,data.length);
     var J = JSON.parse(input);
     console.log(J);
+    wires = [];
+    gates = [];
+    let GIDlist = new Array(J.gates.length);
+    for(let i = 0; i < 100; i++){
+        gates.push([]);
+    }
+    for(let g in J.gates){
+        let type = J.gates[g].type;
+        let x = J.gates[g].coords[0];
+        let y = J.gates[g].coords[1];
+        let newgate;
+        switch(type){
+            case "WireNode":
+                newgate = new WireNode(x,y);
+                break;
+            case "NotGate":
+                newgate = new NotGate(x,y);
+                break;
+            case "OrGate":
+                newgate = new OrGate(x,y);
+                break;
+            case "AndGate":
+                newgate = new AndGate(x,y);
+                break;
+            case "XORGate":
+                newgate = new XORGate(x,y);
+                break;
+            case "PIN":
+                newgate = new PIN(x,y);
+                break;
+            case "LED":
+                newgate = new LED(x,y);
+                break;
+            case "SRFlipFlop":
+                newgate = new SRFlipFlop(x,y);
+                break;
+            default:
+                //IC
+                if(type.startsWith("cc_")){
+                    newgate = new IntegratedCircut(x,y);
+                    newgate.loadFromJson(type);
+                    
+                }else{
+                    throw "Invalid gate type: "+type;
+                }
+
+        }
+        newgate.id = J.gates[g].id;
+        GIDlist[newgate.id]= newgate;
+
+        let indx = round(newgate.x/(overall_dim/10));
+        let indy = round(newgate.y/(overall_dim/10));
+        gates[indx+indy*10].push(newgate);
+        newgate.place();
+        for(var wire in wires){
+            wires[wire].needsUpdate = true;
+            
+        }
+    }
+
+    for(let w in J.wires){
+        let nodeA = GIDlist[J.wires[w].nodeA_ID].outNodes[J.wires[w].nodeA_index];
+        let nodeB = GIDlist[J.wires[w].nodeB_ID].inpNodes[J.wires[w].nodeB_index];
+        var newwire = new Wire(0,0);
+        newwire.nodeA=nodeA;
+        newwire.nodeB=nodeB;
+        nodeB.wires.push(newwire);
+        nodeA.wires.push(newwire);
+        placeGate(newwire);
+    }
 
 
 
