@@ -2,6 +2,9 @@ var modaldiv;
 var maindiv;
 var ttable;
 var ttablebody;
+/**
+ * Pull up IC modal for the current workingIntegrationCircut
+ */
 function createNewCircutModal(){
 
     modaldiv = document.getElementById("integratedCircutConfig");
@@ -13,7 +16,9 @@ function createNewCircutModal(){
     UIkit.modal(modaldiv).show();
 
 }
-
+/**
+ * Save the working IC
+ */
 function newCircut_Save(){
     var name = document.getElementById("icc-name").value;
     
@@ -26,6 +31,9 @@ function newCircut_Save(){
     var table = document.getElementById("truthTable");
     table.innerHTML="";
 }
+/**
+ * Cancel the new IC modal
+ */
 function newCircut_Cancel(){
     workingIntegrationCircut = undefined;
     _mode_ = CursorModes.MOVEMENT;
@@ -33,7 +41,11 @@ function newCircut_Cancel(){
     var table = document.getElementById("truthTable");
     table.innerHTML="";
 }
-
+/**
+ * Compile an IC for localStorage
+ * @param {IntegratedCircut} circut 
+ * @param {string} name 
+ */
 function saveIntegratedCircut(circut, name){
 
     if(name == "" || name == undefined)return;
@@ -58,7 +70,14 @@ function saveIntegratedCircut(circut, name){
 
 
 
-
+/**
+ * Recursive function to test all possible binary values for a given bitwidth
+ * @param {int} n bitwidth
+ * @param {Array} arr array of length n for internal use
+ * @param {int} i incrementor
+ * @param {Array} oarr 2D array of outputs
+ * @param {IntegratedCircut} c circut to test results against
+ */
 async function generateAllBinaryStrings(n,arr,i,oarr,c){
     if(i == n) {
         var o = passTest(c,arr.concat());
@@ -95,7 +114,11 @@ async function generateAllBinaryStrings(n,arr,i,oarr,c){
 
 
 
-
+/**
+ * Determine the outputs from a given IC based on given inputs
+ * @param {IntegratedCircut} circut the IC to test
+ * @param {Array} inputs inputs to give to IC
+ */
 function passTest(circut, inputs){
     circut.inputs = inputs.concat();
     for(var i = 0 ; i < circut.inputs.length; i ++){
@@ -114,7 +137,10 @@ function startSpinner(){
     document.getElementById("spinnerDiv").innerHTML="<div uk-spinner></div>";
 
 }
-
+/**
+ * Create the html elements to display a truth table for a given IC
+ * @param {string} name name if IC in localStorage
+ */
 async function generateTruthTable(name){
     if(true){
         var c = new IntegratedCircut(-1000,-1000);
@@ -155,7 +181,14 @@ async function generateTruthTable(name){
 
 
 }
-
+/**
+ * Finalize HTML table
+ * @param {int} len bitwidth
+ * @param {Array} array array of length len
+ * @param {Array} oarrtest 2D array of outputs
+ * @param {IntegratedCircut} c IC to test
+ * @param {DOMElement} table output element to add html children to
+ */
 async function finishTruthTableOp(len,array,oarrtest,c,table){
 
     await generateAllBinaryStrings(len,array,0,oarrtest,c);
@@ -165,13 +198,19 @@ async function finishTruthTableOp(len,array,oarrtest,c,table){
 
 }
 
-
+/**
+ * place a given IC in hand
+ * @param {string} name name of IC in localStorage
+ */
 function getIntegratedCircut(name){
     circutInHand = new IntegratedCircut(0,0);
     circutInHand.loadFromJson(name);
     circutInHand.name=name;
 }
-
+/**
+ * open modal for existing IC
+ * @param {string} name name of IC in localStorage
+ */
 function openICSettings(name){
     workingIntegrationCircut = new IntegratedCircut();
     workingIntegrationCircut.loadFromJson(name);
@@ -180,7 +219,10 @@ function openICSettings(name){
 }
 
 
-
+/**
+ * generate buttons for existing IC's
+ * @param {string} name name if IC in localStorage
+ */
 function createDefaultICUIElement(name){
 
     var parent = document.createElement("li");
@@ -188,7 +230,9 @@ function createDefaultICUIElement(name){
     return parent;
 
 }
-
+/**
+ * Update menu for existing IC's
+ */
 function loadICUIElements(){
     var list = document.getElementById("custom_circuts_list");
     
@@ -202,7 +246,9 @@ function loadICUIElements(){
 
 }
 
-
+/**
+ * Save everything on the board as a file
+ */
 async function createSaveFile(){
 
     var output = {};
@@ -243,7 +289,10 @@ async function createSaveFile(){
 }
 
 
-
+/**
+ * Load savefile into a string for processing
+ * @param {Blob} file file from input
+ */
 async function loadFromSave(file){
 
     console.log(file);
@@ -260,7 +309,10 @@ async function loadFromSave(file){
 
 
 }
-
+/**
+ * Fill in gates, wires, and IC's based on the state of a savefile.
+ * @param {string} data savefile content
+ */
 function createStateFromFile(data){
     if(!data.startsWith("<gateboard/>")){
         UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
@@ -282,7 +334,11 @@ function createStateFromFile(data){
 
 
 
-
+/**
+ * Execute a function safely with a clean UIkit notification for errors.
+ * @param {Function} f function
+ * @param {*} args arguments for the function
+ */
 function doSafely(f,args){
 
     try{

@@ -1,6 +1,14 @@
-
+/**
+ * A class used to represent and facilitate the connection between wires and gates.
+ */
 class Node{
-
+    /**
+     * 
+     * @param {int} x coord
+     * @param {int} y coord
+     * @param {Gate} g attached gate
+     * @param {Boolean} isInput 
+     */
     constructor(x,y,g,isInput){
         this.x=x;
         this.y=y;
@@ -11,6 +19,10 @@ class Node{
         this.isInput = isInput;
 
     }
+    /**
+     * Spread instruction backprop
+     * @param {Array} destination 
+     */
     constructInstructions(destination){
     
         for(var w in this.wires){
@@ -25,7 +37,9 @@ class Node{
     
     }
     
-
+    /**
+     * Pass info through connected wires
+     */
     updateWires(){
         for(var wire in this.wires){
             this.wires[wire].needsUpdate=true;
@@ -38,7 +52,9 @@ class Node{
             this.value = this.wires[0].value;
         }
     }
-
+    /**
+     * visuals
+     */
     draw(){
         overlay.fill(node_color);
         if(!this.mouseIsOver){
@@ -49,7 +65,11 @@ class Node{
 
         }
     }
-
+    /**
+     * Shortcut
+     * @param {int} x 
+     * @param {int} y 
+     */
     set(x,y){
         this.x=x;
         this.y=y;
@@ -57,8 +77,15 @@ class Node{
 
 }
 
-
+/**
+ * Parent class (treated as abstract) for all gates/things that can be placed.
+ */
 class Gate{
+    /**
+     * 
+     * @param {int} x 
+     * @param {int} y 
+     */
     constructor(x,y){
         this.inputs = [];
         this.outputs = [];
@@ -79,22 +106,35 @@ class Gate{
     }
     
 
-
+    /**
+     * To be overriden
+     * @param {Array} destination 
+     */
     constructInstructions(destination){
         console.log("something is wrong");
     }
 
-
+    /**
+     * Create basic JSON representation of the gate
+     */
     createJSON(){
         var out = {};
         out[this.constructor.name] = [this.x,this.y];
         return out;
     }
-    
+    /**
+     * To be overriden
+     */
     copy(){
         return new Gate(this.x,this.y);
     }
+    /**
+     * To be overriden
+     */
     place(){}
+    /**
+     * @return a bounding box based on the format [x,y,w,h];
+     */
     gethbox(){
         var out = new Array(4);
         out[0]=this.x;
@@ -103,12 +143,27 @@ class Gate{
         out[3] = this.hboxh;
         return out;
     }
+    /**
+     * To be overriden
+     */
     passthrough(){}
+    /**
+     * @return an array containing the input nodes, and output nodes of the gate
+     */
     getNodes(){
         return [this.inpNodes,this.outNodes];
     }
+    /**
+     * To be overriden
+     */
     drawfordrag(){}
+    /**
+     * To be overriden
+     */
     draw(overlay){}
+    /**
+     * Remove the gate from the workplane
+     */
     cleanup(){
         //this.inpNodes=undefined;
         //this.outNodes=undefined;
@@ -125,7 +180,10 @@ class Gate{
     }
 
     
-
+    /**
+     * Universal function for basic gates.
+     * Handles drawing, logic, and information movement.
+     */
     update(){
         //this.needsUpdate||fullRedraw
         if(true){
@@ -853,7 +911,10 @@ function nodeSort(a,b){
 
 
 
-
+/**
+ * Used to compress a large system of gates and wires into a single gate
+ * @see Gate
+ */
 class IntegratedCircut extends Gate{
 
     constructor(x,y){
@@ -898,6 +959,11 @@ class IntegratedCircut extends Gate{
             }
         }
     }
+    /**
+     * Will execute the assembly like instructions in this.instructionset and will use this.outputThroughPointers to return outputs correctly.
+     * @see generateInstructions
+     * @param {Boolean} rec isRecursive?
+     */
     passthrough(rec){
         if(rec==undefined){
             for(var n in this.inpNodes){
@@ -1053,7 +1119,10 @@ class IntegratedCircut extends Gate{
         overlay.fill(0);
         overlay.text(this.name.substring(3,this.name.length),this.x,this.y,this.width,this.height);
     }
-
+    /**
+     * Load the state of this Gate based on saved data from localStorage
+     * @param {string} name name in localStorage
+     */
     loadFromJson(name){
         this.name=name;
         var J = localStorage.getItem(this.name);
@@ -1105,9 +1174,11 @@ class IntegratedCircut extends Gate{
 
 
     }
-
+    /**
+     * Generate the assembly-like instructionset based on the given gates and wires for later execution/saving
+     */
     generateInstructions(){
-        
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         //The instructions will act like an assembly type sudo language used to determine outputs based on inputs
         //Each node of each gate will be given a variable
         //The function used to determine these variables will be determined by stepping back through the circut recursively.
@@ -1118,7 +1189,7 @@ class IntegratedCircut extends Gate{
         //overall inputs to the system will be denoted as "i#", # meaning the index of the input node
         //storage of the system will be denoted as "s#", # meaning the index of the stored value in this IC's storage array
         //Each variable will be represented by a number, which is an index in the array containing variables
-        
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         if(this.i.length>this.o.length){
             this.height = this.i.length*25;

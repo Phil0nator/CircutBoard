@@ -7,8 +7,9 @@
 
 */
 
-var gates = [];
-var wires = []; //holds pointers to wires also in gates
+var gates = []; //2D array of chunks (flat)
+var wires = []; //1D array of wires
+
 function setup(){
     background(255);
     createCanvas(document.body.clientWidth,document.body.clientHeight);
@@ -34,10 +35,12 @@ function setup(){
     
 }
 
-
+/**
+ * @return the chunk of gates that the mouse is currenly over.
+ */
 function getMChunk(){
-    var indx = round((-translationx/scalar+mouseX/scalar)/(overall_dim/10));
-    var indy = round((-translationy/scalar+mouseY/scalar)/(overall_dim/10));
+    var indx = round((-translationx/scalar+mouseX/scalar-(overall_dim/20))/(overall_dim/10));
+    var indy = round((-translationy/scalar+mouseY/scalar-(overall_dim/20))/(overall_dim/10));
     return gates[indx+indy*10];
 }
 
@@ -167,7 +170,9 @@ function draw(){
 
 
 
-
+/**
+ * Determine what node the mouse is over
+ */
 
 function handleMouseOverNodes(){
 
@@ -257,7 +262,10 @@ function handleTimedEvents(){
 
 
 
-
+/**
+ * Put down a gate correctly on the workplane
+ * @param {Gate} gate 
+ */
 function placeGate(gate){
     if(gate.isWire){
         gate.place();
@@ -293,7 +301,9 @@ function placeGate(gate){
 
 
 
-
+/**
+ * Contains placement algorithm
+ */
 
 function mousePressed(){
 
@@ -378,14 +388,22 @@ function mousePressed(){
 
 
 
-
+/**
+ * 
+ * @param {Wire} wire the wire in question
+ * @param {int} x x coordinate of the node
+ * @param {int} y y coordinate of the node 
+ * @param {Boolean} useNodeA nodeA or nodeB of the wire 
+ */
 function wireNodeConnectionTest(wire, x,y, useNodeA){
     x=int(x);
     y=int(y);
     return ((dist(wire.nodeA.x,wire.nodeA.y,x,y)<=15&&useNodeA) || (dist(wire.nodeB.x,wire.nodeB.y,x,y)<=15&&!useNodeA));
 
 }
-
+/**
+ * Build a new IntegratedCircut based on a selection area
+ */
 function constructCircut(){
 
 
@@ -463,7 +481,9 @@ function constructCircut(){
 
 
 
-
+/**
+ * Handles picking up gates
+ */
 function mouseReleased(){
     dragog = [];
     if(mouseButton === RIGHT){
@@ -548,10 +568,16 @@ function mouseReleased(){
 
 
 
-
+/**
+ * responsive
+ */
 function windowResized() {
     resizeCanvas(document.body.clientWidth, document.body.clientHeight);
 }
+/**
+ * Handle zooming
+ * @param {Object} event 
+ */
 function mouseWheel(event) {
     if(_mode_ == CursorModes.EDIT||_mode_ == CursorModes.INMODAL){
         return;
@@ -565,6 +591,9 @@ function mouseWheel(event) {
         scalar+=5/event.delta
         }
 }
+/**
+ * Handle both panning, and selection through dragog array, and the integrationArea array
+ */
 function handleDrag(){
     if(dragog[0]==undefined||_mode_==CursorModes.EDIT){return;}
     if(_mode_ == CursorModes.MOVEMENT){
@@ -577,7 +606,9 @@ function handleDrag(){
         integrationArea[3] = mouseY;
     }
 }
-
+/**
+ * Debugging
+ */
 function drawIntegrationArea(){
     if(dragog[0]==undefined)return;
     fill(100,100,255,100);
@@ -591,7 +622,9 @@ function handleEdit(){
 
 }
 
-
+/**
+ * Handles shortcuts and interaction
+ */
 function keyPressed(){
     if(keyCode == 32){
         try{
@@ -642,7 +675,9 @@ function keyReleased(){
         shiftDown=false;
     }
 }
-
+/**
+ * Callback for 'new integrated circut' button
+ */
 function startIntegrationMode(){
     var gatecount = 0;
     for(var gate in gates){
