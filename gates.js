@@ -24,7 +24,11 @@ class Node{
      * @param {Array} destination 
      */
     constructInstructions(destination){
-        
+        if(this.hasPropogated){
+            return;
+        }
+        this.hasPropogated=true;
+
         for(var w in this.wires){
             if(this.wires[w].nodeA !== this){
                 this.wires[w].nodeA.gate.constructInstructions(destination);

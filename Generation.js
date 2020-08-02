@@ -152,7 +152,12 @@ async function generateTruthTable(name){
         var c = workingIntegrationCircut.copy();
     }
     var len = c.inpNodes.length;
-
+    var elementsToCreate = Math.pow(2,len);
+    if(elementsToCreate > 500){
+        UIkit.notification({message: "You've just attempted to make a truth table with "+elementsToCreate*2+" entries. Go do it with paper.", status:"danger"});
+        document.getElementById("spinnerDiv").innerHTML = "";
+        return;
+    }
     var oarrtest = [];
     var array = new Array(len);
 
@@ -232,18 +237,15 @@ function createDefaultICUIElement(name){
     parent.appendChild(card);
     var button1 = document.createElement("button");
     button1.setAttribute("class", "uk-button uk-button-secondary uk-width-2-3");
-    button1.onclick = function(){
-        getIntegratedCircut(name);
-    }
+    
+    button1.setAttribute("onclick","getIntegratedCircut(\"cc_"+name+"\");");
     var b1tn = document.createTextNode(name);
     button1.appendChild(b1tn);
     card.appendChild(button1);
     var button2 = document.createElement("button");
     button2.setAttribute("class","uk-button-secondary uk-margin");
     var sp1 = document.createElement("span");
-    sp1.onclick=function(){
-        openICSettings("cc_"+name);
-    }
+    sp1.setAttribute("onclick", "openICSettings(\"cc_"+name+"\");");
     sp1.setAttribute("uk-icon","icon: settings");
     button2.appendChild(sp1);
     card.appendChild(button2);
