@@ -226,7 +226,8 @@ function openICSettings(name){
 function createDefaultICUIElement(name){
 
     var parent = document.createElement("li");
-    parent.innerHTML = '<button class="uk-button uk-button-default uk-width-2-3" onclick="getIntegratedCircut(\'cc_'+name+'\');">'+name+'</button><button class="uk-button-default uk-margin"><span class=""uk-icon="icon: settings" onclick="openICSettings(\'cc_'+name+'\')"></span></button>'
+    //temporary sloppy solution.
+    parent.innerHTML = '<div class="uk-card uk-card-default"><button class="uk-button uk-button-secondary uk-width-2-3" onclick="getIntegratedCircut(\'cc_'+name+'\');">'+name+'</button><button class="uk-button-secondary uk-margin"><span class=""uk-icon="icon: settings" onclick="openICSettings(\'cc_'+name+'\')"></span></button><span class="uk-sortable-handle uk-margin-small-right" uk-icon="icon: table"></span></div>'
     return parent;
 
 }
