@@ -227,7 +227,29 @@ function createDefaultICUIElement(name){
 
     var parent = document.createElement("li");
     //temporary sloppy solution.
-    parent.innerHTML = '<div class="uk-card uk-card-default"><button class="uk-button uk-button-secondary uk-width-2-3" onclick="getIntegratedCircut(\'cc_'+name+'\');">'+name+'</button><button class="uk-button-secondary uk-margin"><span class=""uk-icon="icon: settings" onclick="openICSettings(\'cc_'+name+'\')"></span></button><span class="uk-sortable-handle uk-margin-small-right" uk-icon="icon: table"></span></div>'
+    var card = document.createElement("div");
+    card.setAttribute("class","uk-card uk-card-default")
+    parent.appendChild(card);
+    var button1 = document.createElement("button");
+    button1.setAttribute("class", "uk-button uk-button-secondary uk-width-2-3");
+    button1.onclick = function(){
+        getIntegratedCircut(name);
+    }
+    var b1tn = document.createTextNode(name);
+    button1.appendChild(b1tn);
+    card.appendChild(button1);
+    var button2 = document.createElement("button");
+    button2.setAttribute("class","uk-button-secondary uk-margin");
+    var sp1 = document.createElement("span");
+    sp1.onclick=function(){
+        openICSettings("cc_"+name);
+    }
+    sp1.setAttribute("uk-icon","icon: settings");
+    button2.appendChild(sp1);
+    card.appendChild(button2);
+    card.innerHTML+='</button><span class="uk-sortable-handle uk-margin-small-right" uk-icon="icon: table"></span></div>';
+    
+    
     return parent;
 
 }
