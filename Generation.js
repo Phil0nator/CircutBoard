@@ -202,6 +202,87 @@ function loadICUIElements(){
 
 }
 
+
+async function createSaveFile(){
+
+    var output = {};
+    output.integratedCircuts = {};
+    output.gates = [];
+    output.wires = [];
+    for(var k in localStorage){
+        if(k.startsWith("cc_")){
+            output.integratedCircuts[k] = localStorage.getItem(k);
+        }
+    }
+    let inc = 0;
+    for(let chunk in gates){
+        inc++;
+        for(let g in gates[chunk]){
+            var gate = gates[chunk][g];
+            gate.id = inc; 
+            inc++;
+            output.gates.push({type: gate.constructor.name, coords: [gate.x,gate.y], id: gate.id});
+        }
+    }
+    for(let w in wires){
+
+        let nodeAInfo = wires[w].nodeA.gate.outNodes.indexOf(wires[w].nodeA);
+        let nodeBInfo = wires[w].nodeB.gate.inpNodes.indexOf(wires[w].nodeB);
+        let nodeAID = wires[w].nodeA.gate.id;
+        let nodeBID = wires[w].nodeB.gate.id;
+        output.wires.push({nodeA_ID: nodeAID,nodeB_ID: nodeBID, nodeA_index: nodeAInfo, nodeB_index:nodeBInfo});
+
+    }
+
+    var output = JSON.stringify(output);
+    var blob = new Blob(["<gateboard/>"+output],{ type: "text/plain;charset=utf-8" });
+    saveAs(blob, "New Gateboard.gateboard");
+
+
+
+}
+
+
+
+async function loadFromSave(file){
+
+    console.log(file);
+    var content;
+    
+    var fr = new FileReader();
+    fr.customDataDestination = content;
+    
+    fr.onload = function(){
+        doSafely(createStateFromFile,this.result);
+    }
+    fr.readAsText(file);
+
+
+
+}
+
+function createStateFromFile(data){
+    if(!data.startsWith("<gateboard/>")){
+        UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
+        return;
+    }
+    var input = data.substring(12,data.length);
+    var J = JSON.parse(input);
+    console.log(J);
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
 function doSafely(f,args){
 
     try{

@@ -26,9 +26,12 @@ function setup(){
     setInterval(handleTimedEvents,100);
 
     //html related:
-
     loadICUIElements();
 
+    document.getElementById("input-upload").addEventListener("change",function(){loadFromSave(this.files[0]);});
+
+
+    
 }
 
 

@@ -17,6 +17,7 @@
 
     <body oncontextmenu="return false">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="FileSaver/FileSaver.js"></script>
         <script src="constants.js"></script>
         <script src="gates.js"></script>
         <script src="circut.js"></script>
@@ -30,6 +31,12 @@
                 </li>
                 <li>
                     <span class="uk-icon-button uk-margin" uk-tooltip="title: New Integrated Circut; pos: right" type="button" onclick="startIntegrationMode();" uk-icon="move"></span>
+                </li>
+                <li>
+                    <span class="uk-icon-button uk-margin" type="button" uk-tooltip="title: Import .gateboard; pos: right" uk-icon="upload" uk-toggle="target: #uploadModal"></span>
+                </li>
+                <li>
+                    <span class="uk-icon-button uk-margin" type="button" uk-tooltip="title: Save as .gateboard; pos: right" uk-icon="download" onclick="doSafely(createSaveFile);"></span>
                 </li>
             </ul>
         </div>
@@ -88,7 +95,7 @@
                                 <button class="uk-button uk-button-default uk-width-1-1" onclick="">FILE ROM</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">ROM</button>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">RAM</button>
                             </li>
                             <li>
                                 <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new SRFlipFlop(0,0);cursor('grab');">S-R FLIP FLOP</button>
@@ -103,6 +110,9 @@
                             </li>
                             <li>
                                 <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);cursor('grab');">PIN Output</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);cursor('grab');">16x16 LCD DISPLAY</button>
                             </li>
                         </ul>
 
@@ -336,6 +346,27 @@
                 </div>
                 <div class="uk-modal-footer uk-text-right">
                     <button class="uk-button uk-button-primary uk-modal-close" onclick="_mode_ = CursorModes.MOVEMENT" type="button">Done</button>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div id="uploadModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal>
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" onclick="_mode_ = CursorModes.MOVEMENT" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Upload Gateboard</h2>
+                </div>
+                <div class="uk-modal-body">
+                    <div class="js-upload uk-flex uk-flex-center " uk-form-custom>
+                        <input id="input-upload" type="file">
+                        <button class="uk-button uk-width-1-1 uk-button-default uk-button-large" type="button" tabindex="-1">Select A File</button>
+                    </div>
+                    
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-default uk-modal-close" onclick="_mode_ = CursorModes.MOVEMENT" type="button">Cancel</button>
                 </div>
             </div>
         </div>
