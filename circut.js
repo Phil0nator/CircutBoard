@@ -106,12 +106,7 @@ function draw(){
                 gates[gatechunk][gate].update();
             }
         }
-        for(let gatechunk in gates){
-            for(let gate in gates[gatechunk]){
-                if(gates[gatechunk][gate]!=undefined)
-                gates[gatechunk][gate].secondaryUpdate();
-            }
-        }
+        
         for(let wire in wires){
             if(wires[wire].finalized){
                 wires[wire].update();
@@ -257,9 +252,9 @@ function handleMouseOverNodes(){
 
 function handleTimedEvents(){
 
-    if(justPlacedWire&&Date.now()-lastWirePlace>100){
+    if(justPlacedWire&&Date.now()-lastWirePlace>1000){
         justPlacedWire=false;
-        lastWirePlace = Date.now();
+        //lastWirePlace = Date.now();
     }
 
 
@@ -285,6 +280,11 @@ function handleTimedEvents(){
  */
 function placeGate(gate){
     if(gate.isWire){
+        if(gate.nodeB==undefined){
+            circutInHand.cleanup();
+            circutInHand=undefined;
+            return;
+        }
         gate.place();
         lastWirePlace = Date.now();
         justPlacedWire = true;
@@ -515,9 +515,7 @@ function mouseReleased(){
 
 
     }
-    /*
-    TODO: Occasional misdetection when circuts are placed on the line between chunks
-    */
+
     if(circutInHand==undefined&&nodeInHand==undefined&&!justPlacedWire){
         let currentChunk = getMChunk();
         var mx = (-translationx/scalar+mouseX/scalar);
@@ -560,7 +558,7 @@ function mouseReleased(){
 
     
 
-    }else if (nodeInHand!=undefined && circutInHand==undefined){
+    }else if (nodeInHand!=undefined && circutInHand==undefined && !justPlacedWire){
         var nw = new Wire(nodeInHand.x,nodeInHand.y);
         nw.tmpx=mouseX;
         nw.tmpy=mouseY;
@@ -598,14 +596,19 @@ function mouseWheel(event) {
     if(_mode_ == CursorModes.EDIT||_mode_ == CursorModes.INMODAL){
         return;
     }
+    if(event.delta>0){
+        event.delta = 53;
+    }else{
+       event.delta=-53;
+    }
     scalar-=5/event.delta;
     if(scalar >= 0){
         var d = 5/event.delta;
-        translationx+=d*overall_dim/2;
-        translationy+=d*overall_dim/2;
+        translationx+=d*overall_dim/2+d*mouseX;
+        translationy+=d*overall_dim/2+d*mouseY;
     }else{
         scalar+=5/event.delta
-        }
+    }
 }
 /**
  * Handle both panning, and selection through dragog array, and the integrationArea array

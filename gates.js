@@ -263,10 +263,11 @@ class Wire extends Gate{
         //this.outNodes=undefined;
         
         
-        wires.splice(wires.indexOf(this));
-        this.nodeA.wires.splice(this.nodeA.wires.indexOf(this));
-        if(this.finalized)
-        this.nodeB.wires.splice(this.nodeB.wires.indexOf(this));
+        wires.splice(wires.indexOf(this),1);
+        this.nodeA.wires.splice(this.nodeA.wires.indexOf(this),1);
+        if(this.finalized && this.nodeB!=undefined){
+            this.nodeB.wires.splice(this.nodeB.wires.indexOf(this),1);
+        }
     }
     gethbox(){
         if(this.finalized){

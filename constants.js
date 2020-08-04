@@ -11,7 +11,7 @@ const node_mover = [100,150,255];
 /**
  * backround color
  */
-const bg_gscale = 150;
+const bg_gscale = [50,150,50];
 /**
  * node radius
  */
