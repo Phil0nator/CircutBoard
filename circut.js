@@ -17,8 +17,16 @@ function setup(){
     //bg.background(bg_gscale);
     overlay = createGraphics(overall_dim,overall_dim);
     overlay.background(bg_gscale);
+    overlay.fill(bg_gscale)
+    for(let x = 0; x < overall_dim/100;x++){
+        for(let y =0; y < overall_dim/100; y++){
+            overlay.circle(x*100,y*100,7);
+        }
+    }
     overlay.fill(255);
+    
     textSize(25);
+    
     //overlay.ellipse(5000,5000,50,50);
     for(var i = 0; i < 100; i++){
         gates.push([]);
@@ -106,6 +114,11 @@ function draw(){
     try{ //anti-hang
         if(fullRedraw){
             overlay.background(bg_gscale);
+            for(let x = 0; x < overall_dim/100;x++){
+                for(let y =0; y < overall_dim/100; y++){
+                    overlay.circle(x*100,y*100,7);
+                }
+            }
             console.log("full-redraw was needed");
         }
 
