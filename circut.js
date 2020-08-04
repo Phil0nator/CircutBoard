@@ -100,13 +100,19 @@ function draw(){
             console.log("full-redraw was needed");
         }
 
-        for(var gatechunk in gates){
-            for(var gate in gates[gatechunk]){
+        for(let gatechunk in gates){
+            for(let gate in gates[gatechunk]){
                 if(gates[gatechunk][gate]!=undefined)
                 gates[gatechunk][gate].update();
             }
         }
-        for(var wire in wires){
+        for(let gatechunk in gates){
+            for(let gate in gates[gatechunk]){
+                if(gates[gatechunk][gate]!=undefined)
+                gates[gatechunk][gate].secondaryUpdate();
+            }
+        }
+        for(let wire in wires){
             if(wires[wire].finalized){
                 wires[wire].update();
             }else{

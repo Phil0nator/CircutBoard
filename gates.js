@@ -226,6 +226,17 @@ class Gate{
         }
     }
 
+    secondaryUpdate(){
+        for(var node in this.inpNodes){
+            this.inputs[node] = this.inpNodes[node].value;
+        }
+        
+        this.passthrough();
+        for (var node in this.outNodes){
+            this.outNodes[node].value = this.outputs[node];
+        }
+    }
+
 }
 const wire_hbox_h = 25;
 class Wire extends Gate{
@@ -977,7 +988,10 @@ class IntegratedCircut extends Gate{
             for(var n in this.inpNodes){
                 this.inputs[n] = this.inpNodes[n].value;
             }
-            this.variables = new Array(this.variables.length);
+            //this.variables = new Array(this.variables.length);
+            for(var i in this.variables){
+                //this.variables[i] = false;
+            }
         }
         for(var p in this.instructionset){
             for(var inst in this.instructionset[p]){
