@@ -311,6 +311,10 @@ function placeGate(gate){
         
     }
 
+    if(closed_placeables_forplace){
+        closed_placeables_forplace=false;
+        UIkit.offcanvas(placeablesmenu).show();
+    }
     
 
     fullRedraw=true;
@@ -338,7 +342,9 @@ function mousePressed(){
         
     }
 
-
+    if(placeablesmenu.isMouseOver){
+        return;
+    }
     
 
     if(shiftDown && mouseButton === LEFT){// i
@@ -518,7 +524,7 @@ function constructCircut(){
 function mouseReleased(){
     
     dragog = [];
-    if(mouseButton === RIGHT){
+    if(mouseButton === RIGHT || placeablesmenu.isMouseOver){
         return;
     }
     if(_mode_ == CursorModes.INTEGRATE){
@@ -704,6 +710,14 @@ function keyPressed(){
         nodeInHand = undefined;
         _mode_ = CursorModes.MOVEMENT;
         fullRedraw=true;
+
+
+        if(closed_placeables_forplace){
+            closed_placeables_forplace=false;
+            UIkit.offcanvas(placeablesmenu).show();
+        }
+
+
         return;
     }
 

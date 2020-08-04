@@ -446,6 +446,15 @@ function createStateFromFile(data){
 
 }
 
+var closed_placeables_forplace = false;
+function createNewGate(constructor){
+    cursor('grab');
+    circutInHand = new constructor(0,0);
+    UIkit.offcanvas(placeablesmenu).hide();
+    closed_placeables_forplace = true;
+}
+
+
 
 
 
