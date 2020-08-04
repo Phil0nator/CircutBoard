@@ -670,8 +670,8 @@ class PIN extends Gate{
         }else{
             fill(255,0,0)
         }
-        circle(this.x+10,this.y+10,node_r*2);
-
+        //circle(this.x+10,this.y+10,node_r*2);
+        triangle(this.x,this.y-4,this.x+30,this.y+11,this.x,this.y+26);
     }
 
 
@@ -688,8 +688,8 @@ class PIN extends Gate{
         }else{
             overlay.fill(255,0,0)
         }
-        overlay.circle(this.x+10,this.y+10,node_r*2);
-
+        //overlay.circle(this.x+10,this.y+10,node_r*2);
+        overlay.triangle(this.x,this.y-4,this.x+30,this.y+11,this.x,this.y+26);
     }
 
 
@@ -743,6 +743,7 @@ class LED extends Gate{
             overlay.fill(255,0,0)
         }
         overlay.circle(this.x+10,this.y+10,node_r*2);
+        
 
     }
 
@@ -1247,7 +1248,7 @@ class IntegratedCircut extends Gate{
                 this.gates[g].storagePointer = "s"+numberOfStoragePointers;
                 numberOfStoragePointers++;
             }else if (this.gates[g].constructor.name == "IntegratedCircut"){
-                
+
             }
         }
         for(var g in this.gates){

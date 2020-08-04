@@ -82,3 +82,4 @@ var lastWirePlace = Date.now();
  */
 var clipboard = [];
 var contextmenu;
+var placeablesmenu;

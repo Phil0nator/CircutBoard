@@ -33,6 +33,11 @@ function setup(){
     contextmenu.onmouseleave = function() {this.isMouseOver=false;};
 
 
+    placeablesmenu = document.getElementById("offcanvas-flip");
+    placeablesmenu.onmouseover = function(){this.isMouseOver=true;};
+    placeablesmenu.onmouseleave = function(){this.isMouseOver=false;};
+
+
     document.getElementById("input-upload").addEventListener("change",function(){loadFromSave(this.files[0]);});
 
 
@@ -334,13 +339,23 @@ function mousePressed(){
     }
 
 
+    
+
+    if(shiftDown && mouseButton === LEFT){// i
+        var mx = (-translationx/scalar+mouseX/scalar);
+        var my = (-translationy/scalar+mouseY/scalar);
+        placeGate(new PIN(mx,my));
+
+    }else if (shiftDown && mouseButton === RIGHT){//o
+        var mx = (-translationx/scalar+mouseX/scalar);
+        var my = (-translationy/scalar+mouseY/scalar);
+        placeGate(new LED(mx,my));
+    }
     if(!contextmenu.hidden){
         if(!contextmenu.isMouseOver){
             closeContextMenu();
         }
     }
-
-
 
 
 
@@ -656,6 +671,13 @@ function keyPressed(){
 
         }
     }
+
+
+
+
+
+
+
     if(keyCode == UP_ARROW){
         var inp = new Object();
         inp.delta = -53;
@@ -665,6 +687,10 @@ function keyPressed(){
         inp.delta = +53;
         mouseWheel(inp);
     }
+
+
+
+
 
 
     if(keyCode == BACKSPACE){
@@ -682,15 +708,18 @@ function keyPressed(){
     }
 
 
-    if(shiftDown && keyCode == 73){// i
-        var mx = (-translationx/scalar+mouseX/scalar);
-        var my = (-translationy/scalar+mouseY/scalar);
-        placeGate(new PIN(mx,my));
+    
 
-    }else if (shiftDown && keyCode == 79){
-        var mx = (-translationx/scalar+mouseX/scalar);
-        var my = (-translationy/scalar+mouseY/scalar);
-        placeGate(new LED(mx,my));
+    if(shiftDown && keyCode == 65){// shift + a for placeables
+        
+        if(!placeablesmenu.isOpen){
+            UIkit.offcanvas("#offcanvas-flip").show();
+            placeablesmenu.isOpen =true;
+        }else{
+            UIkit.offcanvas("#offcanvas-flip").hide();
+            placeablesmenu.isOpen =false;
+        }
+
     }
 
 
@@ -736,7 +765,7 @@ function closeContextMenu(){
 }
 
 function openContextMenu(){
-
+    if(shiftDown){return;}
     contextmenu.style.top = mouseY;
     contextmenu.style.left = mouseX;
     contextmenu.visibility = "visible";
