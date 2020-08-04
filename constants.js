@@ -46,7 +46,9 @@ const CursorModes = {
     EDIT: 'Edit',
     INTERACT: 'Interact',
     INTEGRATE: "Integrate",
-    INMODAL: "Inmodal"
+    INMODAL: "Inmodal",
+    COPYSELECT: "Copyselect",
+    CUTSELECT: "Cutselect"
 }
 var _mode_ = CursorModes.MOVEMENT;
 
@@ -73,3 +75,10 @@ var workingIntegrationCircut;
  */
 var justPlacedWire = false;
 var lastWirePlace = Date.now();
+
+
+/**
+ * Used to store what the user is copying and pasting without interfearing with the real computer clipboard
+ */
+var clipboard = [];
+var contextmenu;

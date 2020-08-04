@@ -1246,6 +1246,8 @@ class IntegratedCircut extends Gate{
             if(this.gates[g].constructor.name == "SRFlipFlop"){
                 this.gates[g].storagePointer = "s"+numberOfStoragePointers;
                 numberOfStoragePointers++;
+            }else if (this.gates[g].constructor.name == "IntegratedCircut"){
+                
             }
         }
         for(var g in this.gates){

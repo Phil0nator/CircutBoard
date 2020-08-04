@@ -15,14 +15,35 @@
     </head>
 
 
-    <body oncontextmenu="return false">
+    <body oncontextmenu="doSafely(openContextMenu);return false;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>"use strict";</script>
         <script src="FileSaver/FileSaver.js"></script>
         <script src="constants.js"></script>
         <script src="gates.js"></script>
         <script src="circut.js"></script>
         <script src="Generation.js" ></script>
 
+
+        <div id="contextmenu" class="uk-position-absolute uk-card-hover uk-card uk-card-secondary" hidden >
+            <div class="uk-card uk-card-default uk-card-body uk-background-secondary">
+
+                <ul class="uk-nav uk-nav-default uk-background-secondary uk-margin">
+                    <li>
+                        <a>Select and copy</a>
+                    </li>
+                    <li>
+                        <a>Select and cut</a>
+                    </li>
+                    <li>
+                        <a onclick="startIntegrationMode();">Select and integrate</a>
+                    </li>
+                    <li>
+                        <a>Paste</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         <div class="uk-flex uk-background-secondary uk-position-absolute">
             <ul class="uk-list uk-padding-small">
@@ -39,11 +60,12 @@
                     <span class="uk-icon-button uk-margin" type="button" uk-tooltip="title: Save as .gateboard; pos: right" uk-icon="download" onclick="doSafely(createSaveFile);"></span>
                 </li>
             </ul>
+            
         </div>
 
 
 
-        <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: false; bg-close: false; mode: push" >
+        <div id="offcanvas-flip" uk-offcanvas="flip: true; overlay: false; bg-close: false;" >
             <div class="uk-offcanvas-bar" >
 
                 <button class="uk-offcanvas-close" type="button" uk-close></button>

@@ -28,6 +28,10 @@ function setup(){
 
     //html related:
     loadICUIElements();
+    contextmenu = document.getElementById("contextmenu");
+    contextmenu.onmouseover = function(){this.isMouseOver=true;};
+    contextmenu.onmouseleave = function() {this.isMouseOver=false;};
+
 
     document.getElementById("input-upload").addEventListener("change",function(){loadFromSave(this.files[0]);});
 
@@ -324,23 +328,17 @@ function placeGate(gate){
  */
 
 function mousePressed(){
-
+    
     if(mouseButton === RIGHT){
-        if(circutInHand==undefined){
-            return;
-        }
-        circutInHand.cleanup();
-        circutInHand.inpNodes=[];
-        circutInHand.outNodes=[];
-        circutInHand = undefined;
-        nodeInHand = undefined;
-        _mode_ = CursorModes.MOVEMENT;
-        fullRedraw=true;
-        return;
+        
     }
 
 
-
+    if(!contextmenu.hidden){
+        if(!contextmenu.isMouseOver){
+            closeContextMenu();
+        }
+    }
 
 
 
@@ -503,6 +501,7 @@ function constructCircut(){
  * Handles picking up gates
  */
 function mouseReleased(){
+    
     dragog = [];
     if(mouseButton === RIGHT){
         return;
@@ -668,6 +667,19 @@ function keyPressed(){
     }
 
 
+    if(keyCode == BACKSPACE){
+        if(circutInHand==undefined){
+            return;
+        }
+        circutInHand.cleanup();
+        circutInHand.inpNodes=[];
+        circutInHand.outNodes=[];
+        circutInHand = undefined;
+        nodeInHand = undefined;
+        _mode_ = CursorModes.MOVEMENT;
+        fullRedraw=true;
+        return;
+    }
 
 
     if(shiftDown && keyCode == 73){// i
@@ -715,4 +727,20 @@ function startIntegrationMode(){
     }else{
         _mode_ = CursorModes.MOVEMENT;
     }
+}
+
+
+function closeContextMenu(){
+
+    contextmenu.hidden=true;
+}
+
+function openContextMenu(){
+
+    contextmenu.style.top = mouseY;
+    contextmenu.style.left = mouseX;
+    contextmenu.visibility = "visible";
+    contextmenu.hidden = false;
+
+
 }
