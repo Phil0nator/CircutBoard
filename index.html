@@ -117,27 +117,13 @@
                         <ul class="uk-list">
 
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">FILE ROM</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">FILE ROM</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">RAM</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">RAM</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new SRFlipFlop(0,0);cursor('grab');">S-R FLIP FLOP</button>
-                            </li>
-                        </ul>
-
-                    </li>
-                    <li>
-                        <ul class="uk-list">
-                            <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new PIN(0,0);cursor('grab');">PIN Input</button>
-                            </li>
-                            <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);cursor('grab');">PIN Output</button>
-                            </li>
-                            <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="circutInHand = new LED(0,0);cursor('grab');">16x16 LCD DISPLAY</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(SRFlipFlop);">S-R FLIP FLOP</button>
                             </li>
                         </ul>
 
@@ -145,13 +131,27 @@
                     <li>
                         <ul class="uk-list">
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">Clock</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(PIN);">PIN Input</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">Decoder</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(LED);">PIN Output</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-default uk-width-1-1" onclick="">Encoder</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">16x16 LCD DISPLAY</button>
+                            </li>
+                        </ul>
+
+                    </li>
+                    <li>
+                        <ul class="uk-list">
+                            <li>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">Clock</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">Decoder</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">Encoder</button>
                             </li>
                             
                         </ul>

@@ -211,6 +211,9 @@ function getIntegratedCircut(name){
     circutInHand = new IntegratedCircut(0,0);
     circutInHand.loadFromJson(name);
     circutInHand.name=name;
+    cursor('grab');
+    UIkit.offcanvas(placeablesmenu).hide();
+    closed_placeables_forplace = true;
 }
 /**
  * open modal for existing IC
@@ -223,6 +226,12 @@ function openICSettings(name){
     createNewCircutModal();
 }
 
+function removeICUIElement(name){
+    document.getElementById("custom_circuts_list").innerHTML="";
+    localStorage.removeItem(name);
+    loadICUIElements();
+}
+
 
 /**
  * generate buttons for existing IC's
@@ -231,23 +240,34 @@ function openICSettings(name){
 function createDefaultICUIElement(name){
 
     var parent = document.createElement("li");
+    parent.setAttribute("id",name);
     //temporary sloppy solution.
     var card = document.createElement("div");
     card.setAttribute("class","uk-card uk-card-default")
     parent.appendChild(card);
+
     var button1 = document.createElement("button");
     button1.setAttribute("class", "uk-button uk-button-secondary uk-width-2-3");
-    
     button1.setAttribute("onclick","getIntegratedCircut(\"cc_"+name+"\");");
+
     var b1tn = document.createTextNode(name);
     button1.appendChild(b1tn);
     card.appendChild(button1);
+
     var button2 = document.createElement("button");
     button2.setAttribute("class","uk-button-secondary uk-margin");
+
     var sp1 = document.createElement("span");
     sp1.setAttribute("onclick", "openICSettings(\"cc_"+name+"\");");
     sp1.setAttribute("uk-icon","icon: settings");
+
+    var sp2 = document.createElement("span");
+    sp2._name=name;
+    sp2.setAttribute("onclick",'if(confirm("Are you sure you would like to delete this IC?")){removeICUIElement(this._name);}');
+    sp2.setAttribute("uk-icon", "trash");
+
     button2.appendChild(sp1);
+    button2.appendChild(sp2);
     card.appendChild(button2);
     card.innerHTML+='</button><span class="uk-sortable-handle uk-margin-small-right" uk-icon="icon: table"></span></div>';
     
@@ -443,7 +463,7 @@ function createStateFromFile(data){
     }
 
 
-
+    loadICUIElements();
 }
 
 var closed_placeables_forplace = false;
