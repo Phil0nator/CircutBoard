@@ -247,7 +247,7 @@ function createDefaultICUIElement(name){
     parent.appendChild(card);
 
     var button1 = document.createElement("button");
-    button1.setAttribute("class", "uk-button uk-button-secondary uk-width-2-3");
+    button1.setAttribute("class", "uk-button uk-button-secondary uk-text-truncate uk-width-3-5");
     button1.setAttribute("onclick","getIntegratedCircut(\"cc_"+name+"\");");
 
     var b1tn = document.createTextNode(name);
@@ -256,6 +256,9 @@ function createDefaultICUIElement(name){
 
     var button2 = document.createElement("button");
     button2.setAttribute("class","uk-button-secondary uk-margin");
+
+    var button3 = document.createElement("button");
+    button3.setAttribute("class","uk-button-secondary uk-margin");
 
     var sp1 = document.createElement("span");
     sp1.setAttribute("onclick", "openICSettings(\"cc_"+name+"\");");
@@ -267,8 +270,9 @@ function createDefaultICUIElement(name){
     sp2.setAttribute("uk-icon", "trash");
 
     button2.appendChild(sp1);
-    button2.appendChild(sp2);
+    button3.appendChild(sp2);
     card.appendChild(button2);
+    card.appendChild(button3);
     card.innerHTML+='</button><span class="uk-sortable-handle uk-margin-small-right" uk-icon="icon: table"></span></div>';
     
     
@@ -294,7 +298,15 @@ function loadICUIElements(){
 /**
  * Save everything on the board as a file
  */
-async function createSaveFile(){
+async function createSaveFile(range){
+
+    if(range!=undefined){
+        var sx = -translationx/scalar+range[0]/scalar;
+        var sy = -translationy/scalar+range[1]/scalar;
+        range[2] = -translationx/scalar+range[2]/scalar;
+        range[3] = -translationx/scalar+range[3]/scalar;
+    }
+
 
     var output = {};
     output.integratedCircuts = {};
@@ -309,7 +321,21 @@ async function createSaveFile(){
     for(let chunk in gates){
         inc++;
         for(let g in gates[chunk]){
-            var gate = gates[chunk][g];
+
+            let gate = gates[chunk][g];
+            var isinrange;
+            if(range==undefined){
+                isinrange=true;
+            }else{
+                if(gate.x>sx&&gate.x<range[2]&&gate.y>sy&&gate.y<range[3]&&gate.isWire!=true){
+                    isinrange=true;
+                }else{
+                    isinrange=false;
+                }
+            }
+            if(!isinrange)continue;
+
+           
             gate.id = inc; 
             inc++;
             if(gate.isIntegrated == true){
@@ -321,16 +347,35 @@ async function createSaveFile(){
     }
     for(let w in wires){
 
+        var isinrange;
+        let gate = wires[w];
+        if(range==undefined){
+            isinrange=true;
+        }else{
+            if(gate.nodeA.x>sx&&gate.nodeA.x<range[2]&&gate.nodeA.y>sy&&gate.nodeA.y<range[3]  && gate.nodeB.x>sx&&gate.nodeB.x<range[2]&&gate.nodeB.y>sy&&gate.nodeB.y<range[3]){
+                isinrange=true;
+            }else{
+                isinrange=false;
+            }
+        }
+        if(!isinrange)continue;
+
+
         let nodeAInfo = wires[w].nodeA.gate.outNodes.indexOf(wires[w].nodeA);
         let nodeBInfo = wires[w].nodeB.gate.inpNodes.indexOf(wires[w].nodeB);
         let nodeAID = wires[w].nodeA.gate.id;
         let nodeBID = wires[w].nodeB.gate.id;
 
-        output.wires.push({nodeA_ID: nodeAID,nodeB_ID: nodeBID, nodeA_index: nodeAInfo, nodeB_index:nodeBInfo});
+        output.wires.push({nodeA_ID: nodeAID,nodeB_ID: nodeBID, nodeA_index: nodeAInfo, nodeB_index:nodeBInfo, isBus: wires[w].isBus});
 
     }
-
+    output.og = [sx,sy];
     var output = JSON.stringify(output);
+    
+    if(range !=undefined){
+        
+        return "<gateboard/>"+output;
+    }
     var blob = new Blob(["<gateboard/>"+output],{ type: "text/plain;charset=utf-8" });
     saveAs(blob, "New Gateboard.gateboard");
 
@@ -345,14 +390,14 @@ async function createSaveFile(){
  */
 async function loadFromSave(file){
 
-    console.log(file);
     var content;
     
     var fr = new FileReader();
     fr.customDataDestination = content;
     
     fr.onload = function(){
-        doSafely(createStateFromFile,this.result);
+        createStateFromFile(this.result,undefined);
+        UIkit.modal(document.getElementById("uploadModal")).hide();
     }
     fr.readAsText(file);
 
@@ -363,44 +408,56 @@ async function loadFromSave(file){
  * Fill in gates, wires, and IC's based on the state of a savefile.
  * @param {string} data savefile content
  */
-function createStateFromFile(data){
-    if(!data.startsWith("<gateboard/>")){
-        UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
-        return;
+function createStateFromFile(data, paste){
+    if(paste==undefined){
+        if(!data.startsWith("<gateboard/>")){
+            UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
+            return;
+        }
+
+
+        if(!confirm("This will overwrite your current workplane, and will update IC's")){
+            return;
+        }
+
     }
-
-
-    if(!confirm("This will overwrite your current workplane, and will update IC's")){
-        return;
-    }
-
-
     var input = data.substring(12,data.length);
     var J = JSON.parse(input);
     console.log(J);
-    wires = [];
-    gates = [];
     let GIDlist = new Array(J.gates.length);
-    for(let i = 0; i < 100; i++){
-        gates.push([]);
+    if(paste == undefined){
+        console.log(J);
+        wires = [];
+        gates = [];
+        for(let i = 0; i < 100; i++){
+            gates.push([]);
+        }
+
+
+
+        for(let IC in J.integratedCircuts){
+            localStorage.setItem(IC,J.integratedCircuts[IC]);
+        }
+
+
+
+
+
+
     }
-
-
-
-    for(let IC in J.integratedCircuts){
-        localStorage.setItem(IC,J.integratedCircuts[IC]);
-    }
-
-
-
-
-
-
-
     for(let g in J.gates){
         let type = J.gates[g].type;
         let x = J.gates[g].coords[0];
         let y = J.gates[g].coords[1];
+        if(paste!=undefined){
+
+            var mx = (-translationx/scalar+mouseX/scalar);
+            var my = (-translationy/scalar+mouseY/scalar);
+            x += mx-J.og[0];
+            y += my-J.og[1];
+
+
+        }
         let newgate;
         switch(type){
             case "WireNode":
@@ -429,6 +486,9 @@ function createStateFromFile(data){
                 break;
             case "Decoder":
                 newgate = new Decoder(x,y);
+                break;
+            case "Encoder":
+                newgate = new Encoder(x,y);
                 break;
             default:
                 //IC
@@ -465,7 +525,7 @@ function createStateFromFile(data){
         placeGate(newwire);
     }
 
-
+    if(paste==undefined)
     loadICUIElements();
 }
 

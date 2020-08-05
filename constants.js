@@ -80,6 +80,6 @@ var lastWirePlace = Date.now();
 /**
  * Used to store what the user is copying and pasting without interfearing with the real computer clipboard
  */
-var clipboard = [];
+var clipboard = "";
 var contextmenu;
 var placeablesmenu;

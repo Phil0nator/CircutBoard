@@ -30,16 +30,19 @@
 
                 <ul class="uk-nav uk-nav-default uk-background-secondary uk-margin">
                     <li>
-                        <a>Select and copy</a>
+                        <a onclick="_mode_ = CursorModes.COPYSELECT;cursor('crosshair');closeContextMenu();">Select and copy</a>
                     </li>
                     <li>
                         <a>Select and cut</a>
                     </li>
                     <li>
-                        <a onclick="startIntegrationMode();">Select and integrate</a>
+                        <a onclick="closeContextMenu();startIntegrationMode();">Select and integrate</a>
                     </li>
                     <li>
-                        <a>Paste</a>
+                        <a onclick="closeContextMenu();paste();">Paste</a>
+                    </li>
+                    <li>
+                        <a onclick="closeContextMenu(); deleteCircut(); ">Delete</a>
                     </li>
                 </ul>
             </div>
@@ -151,7 +154,7 @@
                                 <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(Decoder);">Decoder</button>
                             </li>
                             <li>
-                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">Encoder</button>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(Encoder);">Encoder</button>
                             </li>
                             
                         </ul>

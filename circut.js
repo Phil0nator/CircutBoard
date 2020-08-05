@@ -74,7 +74,25 @@ function getMChunk(){
     }
     return out;
 }
+function getChunk(x,y){
+    var indx = round(x/(overall_dim/10));
+    var indy = round(y/(overall_dim/10));
+    let indexA = indx+indy*10;
+    if(indexA > 99 || indexA < 0)return [];
+    let out = gates[indexA];
+    for(let i = -1; i < 2;i++){
 
+        for(let j = -1; j < 2; j++){
+            let index = indx+i+(indy+j)*10;
+            if(index < 100 && index > -1){
+                out = out.concat(gates[index]);
+            }
+            
+        }
+
+    }
+    return out;
+}
 
 
 
@@ -171,7 +189,7 @@ function draw(){
             circutInHand.draw(undefined);
         }
 
-        if(_mode_ == CursorModes.INTEGRATE){
+        if(_mode_ == CursorModes.INTEGRATE || _mode_ == CursorModes.COPYSELECT || _mode_ == CursorModes.CUTSELECT){
             drawIntegrationArea();
 
         }
@@ -239,7 +257,7 @@ function handleMouseOverNodes(){
             var allnodes = currentChunk[g].getNodes();
             for(var i = 0; i < 2;i++){
                 for(var node in allnodes[i]){
-                    if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r){
+                    if(dist(mx,my,allnodes[i][node].x,allnodes[i][node].y) < node_r&& _mode_ != CursorModes.INTEGRATE && _mode_ != CursorModes.COPYSELECT && _mode_ != CursorModes.CUTSELECT){
                         nodeInHand = allnodes[i][node];
                         nodeInHand.mouseIsOver = true;
                         cursor(HAND);
@@ -260,7 +278,7 @@ function handleMouseOverNodes(){
         nodeInHand.mouseIsOver=false;
         nodeInHand.needsUpdate = true;
     }
-    if(circutInHand==undefined && _mode_ != CursorModes.INTEGRATE){
+    if(circutInHand==undefined && _mode_ != CursorModes.INTEGRATE && _mode_ != CursorModes.COPYSELECT && _mode_ != CursorModes.CUTSELECT){
         cursor(ARROW);
     }
     nodeInHand = undefined;
@@ -274,7 +292,7 @@ function handleMouseOverNodes(){
 
 function handleTimedEvents(){
 
-    if(justPlacedWire&&Date.now()-lastWirePlace>1000){
+    if(justPlacedWire&&Date.now()-lastWirePlace>500){
         justPlacedWire=false;
         //lastWirePlace = Date.now();
     }
@@ -397,7 +415,7 @@ function mousePressed(){
 
 
 
-    if(_mode_ == CursorModes.INTEGRATE){
+    if(_mode_ == CursorModes.INTEGRATE || _mode_ ==CursorModes.COPYSELECT){
         return;
     }
 
@@ -456,7 +474,7 @@ function wireNodeConnectionTest(wire, x,y, useNodeA){
  */
 function constructCircut(){
 
-
+    _mode_ = CursorModes.MOVEMENT;
 
     var sx = -translationx/scalar+integrationArea[0]/scalar;
     var sy = -translationy/scalar+integrationArea[1]/scalar;
@@ -500,6 +518,7 @@ function constructCircut(){
 
     newCircut.generateInstructions();
     if(newCircut.gates.length<=0){
+        _mode_ = CursorModes.MOVEMENT;
         return;
     }
     workingIntegrationCircut = newCircut;
@@ -523,12 +542,61 @@ function constructCircut(){
 
 
 
+function setClipboard(value){
+    clipboard=value;
+}
+
+function copySelection(){
+
+    createSaveFile(integrationArea).then(setClipboard);
+    _mode_ = CursorModes.MOVEMENT;
+    UIkit.notification({message: "Gates copied to clipboard", status:"success"})
+
+}
+
+function paste(){
+    console.log(clipboard);
+    createStateFromFile(clipboard,true);
+}
 
 
+function deleteCircut(){
+    var mx = parseInt(contextmenu.style.left);
+    var my = parseInt(contextmenu.style.top);
+    mx = (-translationx/scalar+mx/scalar);
+    my = (-translationy/scalar+my/scalar);
+    
+    //overlay.fill(100,100,255,100);
+    //overlay.rect(indx*(overall_dim/10),indy*(overall_dim/10),overall_dim/10,overall_dim/10);
+    mouseX = mx;
+    mouseY = my;
+    var currentChunk = getChunk(mx,my);
 
+    for(var g in currentChunk){
+        if(currentChunk[g]==undefined){
+            continue;
+        }
+        var hbox = currentChunk[g].gethbox();
+        var x = hbox[0];
+        var y = hbox[1];
+        x-=10;
+        y-=10;
+        var w = hbox[2];
+        var h = hbox[3];
+        w+=10;
+        h+=10;
+        if(mx>x&&mx<x+w&&my>y&&my<y+h){
+            
+           currentChunk[g].cleanup();
+           fullRedraw=true;
+           circutInHand=undefined;
 
-
-
+        }else{
+            
+            
+        }
+    }
+}
 
 
 /**
@@ -541,12 +609,19 @@ function mouseReleased(){
         return;
     }
     if(_mode_ == CursorModes.INTEGRATE){
-        _mode_ == CursorModes.MOVEMENT;
+        _mode_ = CursorModes.MOVEMENT;
 
         constructCircut();
 
 
 
+    }
+
+
+    if(_mode_ == CursorModes.COPYSELECT){
+
+        _mode_=CursorModes.MOVEMENT;
+        copySelection();
     }
 
     if(circutInHand==undefined&&nodeInHand==undefined&&!justPlacedWire){
@@ -656,7 +731,7 @@ function handleDrag(){
     if(_mode_ == CursorModes.MOVEMENT){
         translationx=dragog[2]+mouseX;
         translationy=dragog[3]+mouseY;
-    }else if (_mode_ == CursorModes.INTEGRATE){
+    }else if (_mode_ == CursorModes.INTEGRATE ||_mode_ == CursorModes.COPYSELECT ||_mode_ == CursorModes.CUTSELECT){
         integrationArea[0] = dragog[0];
         integrationArea[1] = dragog[1];
         integrationArea[2] = mouseX;

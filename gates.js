@@ -329,7 +329,6 @@ class Wire extends Gate{
         if(this.nodeB == undefined){
             this.nodeB = new Node(this.x2,this.y2,this,"wire");
         }
-        console.log(this.nodeA);
         if(this.nodeA.isInput){
             let temp = this.nodeA;
             this.nodeA = this.nodeB;
@@ -1040,10 +1039,14 @@ class Decoder extends Gate{
         return out;
     }
 
+
+
     passthrough(){
 
 
-        this.outputs[0]=!this.inputs[0];
+        for(let i in this.inpNodes[0].content){
+            this.outNodes[i].value = this.inpNodes[0].content[i];
+        }
 
     }
 
@@ -1070,6 +1073,103 @@ class Decoder extends Gate{
 
 }
 
+class Encoder extends Gate{
+
+    constructor(x,y){
+        super(x,y);
+        this.hboxh = 150;
+        this.hboxw = 60;
+        
+    }
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+
+        destination.push([this.inpNodes[0].assignedVariable,"!",this.inpNodes[0].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
+    }
+
+    place(){
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [];
+            this.outNodes = [new BusNode(this.x+45,this.y+20, this,true,8)];
+            //this.outNodes = [new BusNode(this.x+45,this.y+20, this,false, 8)];
+            for(var i = 0 ; i < 8;i++){
+                this.inpNodes.push(new Node(this.x,10+this.y+(i)*20,this,false));
+            }
+        }else{
+            this.outNodes[0].x = this.x+45;this.outNodes[0].y=this.y+20;
+            //this.outNodes[0].x=this.x+45;this.outNodes[0].y=this.y+20;
+            for(var i = 0 ; i < 8;i++){
+                this.inpNodes[i].set(this.x,10+this.y+(i)*20);
+            }
+        }
+    }
+
+    copy(){
+        var out = new Decoder(this.x,this.y);
+        out.place();
+        return out;
+    }
+
+
+    update(){
+        //this.needsUpdate||fullRedraw
+
+        this.passthrough();
+        
+        this.draw(overlay);
+        for(var node in this.inpNodes){
+            this.inpNodes[node].draw();
+            this.inpNodes[node].updateWires();
+        }
+        for (var node in this.outNodes){
+            this.outNodes[node].draw();
+            this.outNodes[node].updateWires();
+        }
+        if(!fullRedraw){
+            fullRedraw=true;
+        }
+
+        this.needsUpdate=false;
+        
+    }
+
+
+
+    passthrough(){
+
+
+        for(let i in this.inpNodes){
+            this.outNodes[0].content[i] = this.inpNodes[i].value;
+        }
+
+    }
+
+    drawfordrag(){
+        scale(scalar);
+
+        fill(255);
+        rect(this.x,this.y,60,this.hboxh);
+        triangle(this.x+50,this.y,this.x,this.y+25,this.x+50,this.y+50);
+        
+    }
+
+    draw(overlay){
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+        overlay.fill(255);
+        overlay.rect(this.x,this.y,60,this.hboxh);
+        overlay.triangle(this.x+50,this.y,this.x,this.y+25,this.x+50,this.y+50);
+        
+
+    }
+
+}
 
 
 
