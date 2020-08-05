@@ -81,6 +81,47 @@ class Node{
 
 }
 
+
+class BusNode extends Node{
+
+
+    constructor(x,y,g,isInput,bitwidth){
+        super(x,y,g,isInput);
+        this.content = new Array(bitwidth);
+        this.isBus=true;
+    }
+
+    updateWires(){
+        for(var wire in this.wires){
+            this.wires[wire].needsUpdate=true;
+            
+            //this.wires[wire].s_inputs[0] = this.value;
+            this.wires[wire].content = this.content;
+        }
+        this.gate.needsUpdate=true;
+        if(this.wires[0] != undefined){
+            this.content = this.wires[0].content;
+        }
+    }
+
+
+    draw(){
+        overlay.fill(node_color);
+        if(!this.mouseIsOver){
+            overlay.rect(this.x,this.y,node_r,node_r);
+        }else{
+            overlay.fill(node_mover);
+            overlay.rect(this.x,this.y,node_r,node_r);
+
+        }
+    }
+
+
+}
+
+
+
+
 /**
  * Parent class (treated as abstract) for all gates/things that can be placed.
  */
@@ -344,7 +385,50 @@ class Wire extends Gate{
 
 }
 
+class Bus extends Wire{
+    constructor(x,y){
+        super(x,y);
+        this.isBus=true;
+    }
 
+    passthrough(){
+        
+        this.nodeB.content = this.nodeA.content;
+        this.nodeB.updateWires();
+    }
+    drawfordrag(){
+        scale(scalar);
+
+        if(true){
+            strokeWeight(5);
+            stroke(0);
+            
+            line(this.nodeA.x+translationx/scalar,this.nodeA.y+translationy/scalar,mouseX/scalar,mouseY/scalar);
+            strokeWeight(1);
+        }else{
+            
+
+
+        }
+    }
+
+    draw(overlay){
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+        if(this.finalized == true){
+            overlay.strokeWeight(5);
+            overlay.stroke(0);
+            //var h = this.gethbox();
+            //overlay.rect(h[0],h[1],h[2],h[3]);
+            overlay.line(this.nodeA.x,this.nodeA.y,this.nodeB.x,this.nodeB.y);
+            overlay.strokeWeight(1);
+        }
+    }
+
+
+}
 
 
 
@@ -893,6 +977,97 @@ class SRFlipFlop extends Gate{
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+class Decoder extends Gate{
+
+    constructor(x,y){
+        super(x,y);
+        this.hboxh = 60;
+        this.hboxw = 60;
+        
+    }
+    constructInstructions(destination){
+        
+
+        this.inpNodes[0].constructInstructions(destination);
+
+        destination.push([this.inpNodes[0].assignedVariable,"!",this.inpNodes[0].assignedVariable,this.outNodes[0].assignedVariable]);
+
+    
+    }
+
+    place(){
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new BusNode(this.x-5,this.y+20, this,true)];
+            this.outNodes = [new BusNode(this.x+45,this.y+20, this,false)];
+        }else{
+            this.inpNodes[0].x = this.x-5;this.inpNodes[0].y=this.y+20;
+            this.outNodes[0].x=this.x+45;this.outNodes[0].y=this.y+20;
+        }
+    }
+
+    copy(){
+        var out = new Decoder(this.x,this.y);
+        out.place();
+        return out;
+    }
+
+    passthrough(){
+
+
+        this.outputs[0]=!this.inputs[0];
+
+    }
+
+    drawfordrag(){
+        scale(scalar);
+
+        fill(255);
+        triangle(this.x,this.y,this.x,this.y+50,this.x+50,this.y+25);
+        
+    }
+
+    draw(overlay){
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+        overlay.fill(255);
+        overlay.rect(this.x,this.y,60,50);
+        overlay.triangle(this.x,this.y,this.x,this.y+50,this.x+50,this.y+25);
+        
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

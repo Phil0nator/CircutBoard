@@ -592,7 +592,12 @@ function mouseReleased(){
     
 
     }else if (nodeInHand!=undefined && circutInHand==undefined && !justPlacedWire){
-        var nw = new Wire(nodeInHand.x,nodeInHand.y);
+        var nw;
+        if(!nodeInHand.isBus){
+            nw = new Wire(nodeInHand.x,nodeInHand.y);
+        }else{
+            nw = new Bus(nodeInHand.x,nodeInHand.y);
+        }
         nw.tmpx=mouseX;
         nw.tmpy=mouseY;
         nw.nodeA = nodeInHand;
