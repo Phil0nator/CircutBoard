@@ -427,6 +427,9 @@ function createStateFromFile(data){
             case "SRFlipFlop":
                 newgate = new SRFlipFlop(x,y);
                 break;
+            case "Decoder":
+                newgate = new Decoder(x,y);
+                break;
             default:
                 //IC
                 if(type.startsWith("cc_")){

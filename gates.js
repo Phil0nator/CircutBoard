@@ -114,6 +114,8 @@ class BusNode extends Node{
             overlay.rect(this.x,this.y,node_r,node_r);
 
         }
+        overlay.fill(0);
+        overlay.text("x"+this.content.length,this.x-10,this.y-10)
     }
 
 
@@ -327,13 +329,20 @@ class Wire extends Gate{
         if(this.nodeB == undefined){
             this.nodeB = new Node(this.x2,this.y2,this,"wire");
         }
+        console.log(this.nodeA);
+        if(this.nodeA.isInput){
+            let temp = this.nodeA;
+            this.nodeA = this.nodeB;
+            this.nodeB = temp;
+            this.passthrough();
+        }
     }
 
     passthrough(){
-        this.outputs[0]=this.inputs[0];
-        this.value = this.inputs[0];
-        this.nodeB.value = this.nodeA.value;
-        this.nodeB.updateWires();
+            this.outputs[0]=this.inputs[0];
+            this.value = this.inputs[0];
+            this.nodeB.value = this.nodeA.value;
+            this.nodeB.updateWires();
     }
     drawfordrag(){
         scale(scalar);
@@ -994,7 +1003,7 @@ class Decoder extends Gate{
 
     constructor(x,y){
         super(x,y);
-        this.hboxh = 60;
+        this.hboxh = 150;
         this.hboxw = 60;
         
     }
@@ -1010,11 +1019,18 @@ class Decoder extends Gate{
 
     place(){
         if(this.inpNodes[0] == undefined){
-            this.inpNodes = [new BusNode(this.x-5,this.y+20, this,true)];
-            this.outNodes = [new BusNode(this.x+45,this.y+20, this,false)];
+            this.outNodes = [];
+            this.inpNodes = [new BusNode(this.x-5,this.y+20, this,true,8)];
+            //this.outNodes = [new BusNode(this.x+45,this.y+20, this,false, 8)];
+            for(var i = 0 ; i < 8;i++){
+                this.outNodes.push(new Node(this.x+50,5+this.y+(i)*20,this,false));
+            }
         }else{
             this.inpNodes[0].x = this.x-5;this.inpNodes[0].y=this.y+20;
-            this.outNodes[0].x=this.x+45;this.outNodes[0].y=this.y+20;
+            //this.outNodes[0].x=this.x+45;this.outNodes[0].y=this.y+20;
+            for(var i = 0 ; i < 8;i++){
+                this.outNodes[i].set(this.x+50,5+this.y+(i)*20);
+            }
         }
     }
 
@@ -1035,6 +1051,7 @@ class Decoder extends Gate{
         scale(scalar);
 
         fill(255);
+        rect(this.x,this.y,60,this.hboxh);
         triangle(this.x,this.y,this.x,this.y+50,this.x+50,this.y+25);
         
     }
@@ -1045,7 +1062,7 @@ class Decoder extends Gate{
             return;
         }
         overlay.fill(255);
-        overlay.rect(this.x,this.y,60,50);
+        overlay.rect(this.x,this.y,60,this.hboxh);
         overlay.triangle(this.x,this.y,this.x,this.y+50,this.x+50,this.y+25);
         
 
