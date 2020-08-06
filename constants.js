@@ -28,6 +28,10 @@ const IC_Width = 75;
 
 const NotificationTimeout = 1200;
 
+const ZoomFactor = 53;
+
+
+
 var bg;
 
 /**
@@ -85,3 +89,6 @@ var lastWirePlace = Date.now();
 var clipboard = "";
 var contextmenu;
 var placeablesmenu;
+
+
+

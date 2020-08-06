@@ -93,8 +93,9 @@ function getChunk(x,y){
     }
     return out;
 }
-
-
+function getGlobalMCoords(){
+    return [-translationx/scalar+mouseX/scalar,-translationy/scalar+mouseY/scalar];
+}
 
 
 
@@ -626,7 +627,7 @@ function mouseReleased(){
         constructCircut();
 
 
-
+        (-translationx/scalar+mouseX/scalar)
     }
 
 
@@ -727,10 +728,14 @@ function mouseWheel(event) {
        event.delta=-53;
     }
     scalar-=5/event.delta;
+    var mcoords = getGlobalMCoords();
     if(scalar >= 0){
         var d = 5/event.delta;
+        //d*overall_dim/2
         translationx+=d*overall_dim/2+d*mouseX;
         translationy+=d*overall_dim/2+d*mouseY;
+        //translationx+=d*mcoords[0]+d*mouseX;
+        //translationy+=d*mcoords[1]+d*mouseY;
     }else{
         scalar+=5/event.delta
     }
