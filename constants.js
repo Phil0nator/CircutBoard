@@ -26,6 +26,8 @@ const wire_click_slack = 5;
 const IC_Width = 75;
 
 
+const NotificationTimeout = 1200;
+
 var bg;
 
 /**

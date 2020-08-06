@@ -19,6 +19,10 @@ class Node{
         this.isInput = isInput;
 
     }
+
+    getValue(){
+        return this.value;
+    }
     /**
      * Spread instruction backprop
      * @param {Array} destination 
@@ -89,6 +93,11 @@ class BusNode extends Node{
         super(x,y,g,isInput);
         this.content = new Array(bitwidth);
         this.isBus=true;
+        this.value=this.content;
+    }
+
+    getValue(){
+        return this.content;
     }
 
     updateWires(){
@@ -840,6 +849,95 @@ class LED extends Gate{
     }
 
 }
+
+class BUSPIN extends PIN{
+    constructor(x,y){
+        super(x,y);
+        this.isbuspin = true;
+
+    }
+
+
+    place(){
+        if(this.outNodes[0] == undefined){
+            this.outNodes = [new BusNode(this.x+10,this.y+10, this,false,8)];
+        }else{
+            this.outNodes[0].x=this.x+node_r;this.outNodes[0].y=this.y+node_r;
+        }
+    }
+
+    passthrough(){
+        //this.outputs[0] = this.value;
+        
+    }
+    drawfordrag(){
+        scale(scalar);
+
+        fill(255);
+        //circle(this.x+10,this.y+10,node_r*2);
+        rect(this.x,this.y,this.hboxw,this.hboxh);
+    }
+
+
+    draw(overlay){
+
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+
+        overlay.fill(255);
+        //overlay.circle(this.x+10,this.y+10,node_r*2);
+        overlay.rect(this.x,this.y,this.hboxw,this.hboxh);
+    }
+}
+class BUSOUT extends LED{
+    constructor(x,y){
+        super(x,y);
+        this.isbusout=true;
+        this.content = [];
+        this.hboxw = 100;
+    }
+
+    place(){
+        if(this.inpNodes[0] == undefined){
+            this.inpNodes = [new BusNode(this.x+10,this.y+10, this,false,8)];
+        }else{
+            this.inpNodes[0].x=this.x+node_r;
+            this.inpNodes[0].y= this.y+node_r;
+        }
+    }
+    passthrough(){
+        if(this.inpNodes[0]!=undefined)
+        this.content = this.inpNodes[0].content;
+    }
+
+    drawfordrag(){
+        scale(scalar);
+
+        fill(255);
+        //circle(this.x+10,this.y+10,node_r*2);
+        rect(this.x,this.y,this.hboxw,this.hboxh);
+    }
+
+
+    draw(overlay){
+
+        if(overlay == undefined){
+            this.drawfordrag();
+            return;
+        }
+        overlay.fill(255);
+        
+        //overlay.circle(this.x+10,this.y+10,node_r*2);
+        overlay.rect(this.x,this.y,this.hboxw,this.hboxh);
+        overlay.fill(0);
+        overlay.text("{"+littleEndianRepresentation(this.content),this.x,this.y+35)
+    }
+}
+
+
+
 class WireNode extends Gate{
 
     constructor(x,y){
@@ -1014,6 +1112,27 @@ class Decoder extends Gate{
         destination.push([this.inpNodes[0].assignedVariable,"!",this.inpNodes[0].assignedVariable,this.outNodes[0].assignedVariable]);
 
     
+    }
+    update(){
+        //this.needsUpdate||fullRedraw
+
+        this.passthrough();
+        
+        this.draw(overlay);
+        for(var node in this.inpNodes){
+            this.inpNodes[node].draw();
+            this.inpNodes[node].updateWires();
+        }
+        for (var node in this.outNodes){
+            this.outNodes[node].draw();
+            this.outNodes[node].updateWires();
+        }
+        if(!fullRedraw){
+            fullRedraw=true;
+        }
+
+        this.needsUpdate=false;
+        
     }
 
     place(){
@@ -1249,6 +1368,7 @@ class IntegratedCircut extends Gate{
 
     copy(){
         var out = new IntegratedCircut();
+        out.loadFromJson(this.name);
         out.place();
         return out;
     }
@@ -1280,7 +1400,7 @@ class IntegratedCircut extends Gate{
     passthrough(rec){
         if(rec==undefined){
             for(var n in this.inpNodes){
-                this.inputs[n] = this.inpNodes[n].value;
+                this.inputs[n] = this.inpNodes[n].getValue();
             }
             //this.variables = new Array(this.variables.length);
             for(var i in this.variables){
@@ -1301,16 +1421,16 @@ class IntegratedCircut extends Gate{
                     subIC.place();
                     for(var n in instruction[2]){
                         if(typeof instruction[2][n] != "string"){
-                            subIC.inpNodes[n].value = this.variables[instruction[2][n]];
+                            subIC.inpNodes[n].getValue() = this.variables[instruction[2][n]];
                         }else{
-                            subIC.inpNodes[n].value = this.inputs[parseInt(instruction[2][n].substring(1,instruction[2][n].length))];;
+                            subIC.inpNodes[n].getValue() = this.inputs[parseInt(instruction[2][n].substring(1,instruction[2][n].length))];;
                         }
                     }
                     
                     
                     subIC.passthrough();
                     for(var n in instruction[3]){
-                        this.variables[instruction[3][n]]=subIC.outNodes[n].value;
+                        this.variables[instruction[3][n]]=subIC.outNodes[n].getValue();
                     }
                     continue;
 
@@ -1409,7 +1529,7 @@ class IntegratedCircut extends Gate{
         }
         for(var p in this.outputThroughPointers){
             this.outputs[p] = this.variables[this.outputThroughPointers[p]];
-            this.outNodes[p].value = this.outputs[p];
+            this.outNodes[p].getValue() = this.outputs[p];
         }
 
 
@@ -1452,13 +1572,28 @@ class IntegratedCircut extends Gate{
         this.outputThroughPointers = J.outputThroughPointers;
         this.i=J.i;
         this.o=J.o;
-       
+        this.busspots = J.busspots;
+        var skipbus = false;
+        if(this.busspots == undefined){
+            skipbus=true;
+            this.busspots=[[],[]];
+        }
         //this.place();
         for(var n = 0; n < J.i;n++){
-            this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/J.i),this,true));
+            if(this.busspots[0][n] || skipbus){
+                this.inpNodes.push(new BusNode(this.x,this.y+25+(n)*(this.height/J.i),this,true,8));
+            }else{
+                this.inpNodes.push(new Node(this.x,this.y+25+(n)*(this.height/J.i),this,true));
+            }
         }
         for(var n = 0; n < J.o;n++){
-            this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/J.o),this,false));
+            if(this.busspots[1][n] || skipbus){
+                this.outNodes.push(new BusNode(this.x+this.width,this.y+n*(this.height/J.o),this,false,8));
+
+            }else{
+                this.outNodes.push(new Node(this.x+this.width,this.y+n*(this.height/J.o),this,false));
+
+            }
         }
 
         if(this.i>this.o){
@@ -1522,7 +1657,6 @@ class IntegratedCircut extends Gate{
 
 
 
-
         var numberOfVariables = 0;
         var numberOfStoragePointers = 0;
         for(var i in this.i){
@@ -1545,7 +1679,7 @@ class IntegratedCircut extends Gate{
         }
         for(var g in this.gates){
             for(var n in this.gates[g].inpNodes){
-
+                if(this.gates[g].inpNodes[n] == undefined || this.gates[g].inpNodes[n].wires[0] == undefined)continue;
                 this.gates[g].inpNodes[n].assignedVariable = this.gates[g].inpNodes[n].wires[0].nodeA.assignedVariable;
                 if(this.gates[g].inpNodes[n].assignedVariable == undefined){
                     this.gates[g].inpNodes[n].assignedVariable = "i"+this.gates[g].inpNodes[n].wires[0].nodeA.assignedInputNotation;
@@ -1569,7 +1703,17 @@ class IntegratedCircut extends Gate{
         console.log(this.variables);
         console.log(this.outputThroughPointers);
         console.log(this.storage);
-        
+        //clean nodes
+        for(var g in this.gates){
+            for(var n in this.gates[g].inpNodes){
+                if(this.gates[g].inpNodes[n] == undefined || this.gates[g].inpNodes[n].wires[0] == undefined)continue;
+                this.gates[g].inpNodes[n].hasPropogated = false;
+            }
+        }
+        for(var o in this.o){
+            this.o[o].hasPropogated=false;
+        }
+
 
 
     }

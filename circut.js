@@ -197,8 +197,8 @@ function draw(){
         handleMouseOverNodes();
     }catch(error){
 
-        UIkit.notification({message: error, status:"danger"});
-
+        //UIkit.notification({message: error, status:"danger"});
+        generalErrorMessage(error);
     }
 
 }
@@ -480,8 +480,6 @@ function constructCircut(){
     var sy = -translationy/scalar+integrationArea[1]/scalar;
     integrationArea[2] = -translationx/scalar+integrationArea[2]/scalar;
     integrationArea[3] = -translationx/scalar+integrationArea[3]/scalar;
-
-
     if(integrationArea[2] < sx){
         var t = sx;
         sx = integrationArea[2];
@@ -492,8 +490,19 @@ function constructCircut(){
         sy = integrationArea[3];
         integrationArea[3] = t;
     }
-    //overlay.rect(sx,sy,integrationArea[2]-sx,integrationArea[3]-sy);
-    //overlay.ellipse(sx,sy,20,20);
+    var sw = integrationArea[2]-sx;
+    var sh = integrationArea[3]-sy;
+    
+    
+    
+
+
+
+
+
+    overlay.rect(sx,sy,sw,sh);
+    overlay.ellipse(sx,sy,20,20);
+    //overlay.ellipse(integrationArea[2],integrationArea[3],20,20);
 
     var newCircut = new IntegratedCircut();
     
@@ -501,14 +510,16 @@ function constructCircut(){
     for(var chunk in gates){
         for (var g in gates[chunk]){
             var gate = gates[chunk][g];
-            if(gate.x>sx&&gate.x<integrationArea[2]&&gate.y>sy&&gate.y<integrationArea[3]&&gate.isWire!=true){
-                if(gate.isInputPin){
+            if(gate.x>sx&&gate.x<sw+sx&&gate.y>sy&&gate.y<sy+sh){
+                if(gate.isInputPin || gate.isbuspin){
                     newCircut.i.push(gate.outNodes[0]);
-                }else if(gate.isLEDOut){
+                }else if(gate.isLEDOut || gate.isbusout){
                     newCircut.o.push(gate.inpNodes[0]);
                 }else{
                     newCircut.gates.push(gate);
                 }
+            }else{
+                
             }
         }
     }
@@ -550,7 +561,8 @@ function copySelection(){
 
     createSaveFile(integrationArea).then(setClipboard);
     _mode_ = CursorModes.MOVEMENT;
-    UIkit.notification({message: "Gates copied to clipboard", status:"success"})
+    //UIkit.notification({message: "Gates copied to clipboard", status:"success"})
+    successMessage("Gates copied to clipboard. ");
 
 }
 
@@ -853,7 +865,8 @@ function startIntegrationMode(){
         }
     }
     if(gatecount == 0){
-        UIkit.notification({message: 'You must create a circut before integrating.', status:"danger"});
+        //UIkit.notification({message: 'You must create a circut before integrating.', status:"danger"});
+        warningMessage("You must create a circut before integrating");
         return;
 
     }

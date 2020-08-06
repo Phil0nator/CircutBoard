@@ -18,6 +18,7 @@
     <body oncontextmenu="doSafely(openContextMenu);return false;">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script>"use strict";</script>
+        <script src="binary.js"></script>
         <script src="FileSaver/FileSaver.js"></script>
         <script src="constants.js"></script>
         <script src="gates.js"></script>
@@ -33,7 +34,7 @@
                         <a onclick="_mode_ = CursorModes.COPYSELECT;cursor('crosshair');closeContextMenu();">Select and copy</a>
                     </li>
                     <li>
-                        <a>Select and cut</a>
+                        <a>Cut</a>
                     </li>
                     <li>
                         <a onclick="closeContextMenu();startIntegrationMode();">Select and integrate</a>
@@ -63,7 +64,7 @@
                     <span class="uk-icon-button uk-margin" type="button" uk-tooltip="title: Save as .gateboard; pos: right" uk-icon="download" onclick="doSafely(createSaveFile);"></span>
                 </li>
                 <li>
-                    <span class="uk-icon-button uk-margin" type="button" uk-tooltip="title: Shortcuts; pos: right" uk-icon="question"></span>
+                    <span class="uk-icon-button uk-margin" type="button" uk-tooltip="title: Shortcuts; pos: right" onclick="_mode_ = CursorModes.INMODAL" uk-toggle="target: #shortcutsModal" uk-icon="question"></span>
                 </li>
             </ul>
             
@@ -138,6 +139,13 @@
                             </li>
                             <li>
                                 <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(LED);">PIN Output</button>
+                            </li>
+
+                            <li>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(BUSPIN);">8-BIT BUS Input</button>
+                            </li>
+                            <li>
+                                <button class="uk-button uk-button-secondary uk-width-1-1" onclick="createNewGate(BUSOUT);">8-BIT BUS Output</button>
                             </li>
                             <li>
                                 <button class="uk-button uk-button-secondary uk-width-1-1" onclick="">16x16 LCD DISPLAY</button>
@@ -220,7 +228,7 @@
         </div>
 
 
-        <div id="gateExplinationModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal>
+        <div id="gateExplinationModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal="bg-close:false;">
             <div class="uk-modal-dialog">
                 <button class="uk-modal-close-default" type="button" onclick="_mode_ = CursorModes.MOVEMENT" uk-close></button>
                 <div class="uk-modal-header">
@@ -382,7 +390,7 @@
 
 
 
-        <div id="uploadModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal>
+        <div id="uploadModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal="bg-close:false;">
             <div class="uk-modal-dialog">
                 <button class="uk-modal-close-default" type="button" onclick="_mode_ = CursorModes.MOVEMENT" uk-close></button>
                 <div class="uk-modal-header">
@@ -397,6 +405,31 @@
                 </div>
                 <div class="uk-modal-footer uk-text-right">
                     <button class="uk-button uk-button-default uk-modal-close" onclick="_mode_ = CursorModes.MOVEMENT" type="button">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="shortcutsModal" class="uk-modal uk-modal-container uk-overflow-auto" uk-modal="bg-close:false;">
+            <div class="uk-modal-dialog">
+                <button class="uk-modal-close-default" type="button" onclick="_mode_ = CursorModes.MOVEMENT" uk-close></button>
+                <div class="uk-modal-header">
+                    <h2 class="uk-modal-title">Shortcuts</h2>
+                </div>
+                <div class="uk-modal-body">
+                
+                    <dl class="uk-description-list uk-description-list-divider">
+                        <dt>Shift + l-mouse</dt>
+                        <dd>Place input pin.</dd>
+                        <dt>Shift + r-mouse</dt>
+                        <dd>Place output pin.</dd>
+                        <dt>Shift + a</dt>
+                        <dd>Open placeables menu.</dd>
+                    </dl>
+                    
+                    
+                </div>
+                <div class="uk-modal-footer uk-text-right">
+                    <button class="uk-button uk-button-primary uk-modal-close" onclick="_mode_ = CursorModes.MOVEMENT" type="button">Done</button>
                 </div>
             </div>
         </div>

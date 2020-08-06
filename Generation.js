@@ -30,6 +30,8 @@ function newCircut_Save(){
     UIkit.modal(modaldiv).hide();
     var table = document.getElementById("truthTable");
     table.innerHTML="";
+    //UIkit.notification({message: "New circuit saved. ", status:"success"});
+    successMessage("New circuit saved. ");
 }
 /**
  * Cancel the new IC modal
@@ -58,6 +60,13 @@ function saveIntegratedCircut(circut, name){
     output.outputThroughPointers = circut.outputThroughPointers;
     output.i = circut.i.length;
     output.o = circut.o.length;
+    output.busspots =[[],[]];
+    for(let i in circut.i){
+        output.busspots[0].push(circut.i[i].isbuspin);
+    }
+    for(let i in circut.o){
+        output.busspots[1].push(circut.o[i].isbusout);
+    }
     
 
     localStorage.setItem("cc_"+name,JSON.stringify(output));
@@ -142,19 +151,23 @@ function startSpinner(){
  * @param {string} name name if IC in localStorage
  */
 async function generateTruthTable(name){
-    if(true){
+    console.log(name);
+    if(name!=undefined){
         var c = new IntegratedCircut(-1000,-1000);
         
         c.loadFromJson(name);
         c.place();
         c.name=name;
     }else{
-        var c = workingIntegrationCircut.copy();
+        //UIkit.notification({message: "You'll need to save your circuit before generating a truth table.", status: "warning"});
+        warningMessage("You'll need to save your circuit before generating a truth table.");
+        return;
     }
     var len = c.inpNodes.length;
     var elementsToCreate = Math.pow(2,len);
     if(elementsToCreate > 500){
-        UIkit.notification({message: "You've just attempted to make a truth table with "+elementsToCreate*2+" entries. Go do it with paper.", status:"danger"});
+        //UIkit.notification({message: "You've just attempted to make a truth table with "+elementsToCreate*2+" entries. Go do it with paper.", status:"danger"});
+        warningMessage("You've just attempted to make a truth table with "+elementsToCreate*2+" entries. Go do it with paper.");
         document.getElementById("spinnerDiv").innerHTML = "";
         return;
     }
@@ -411,7 +424,10 @@ async function loadFromSave(file){
 function createStateFromFile(data, paste){
     if(paste==undefined){
         if(!data.startsWith("<gateboard/>")){
-            UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
+            //UIkit.notification({message: "Error: Invalid .gateboard file", status:"danger"});
+            
+            errorMessage("Error: Invalid gateboard file");
+            
             return;
         }
 
@@ -490,6 +506,12 @@ function createStateFromFile(data, paste){
             case "Encoder":
                 newgate = new Encoder(x,y);
                 break;
+            case "BUSPIN":
+                newgate = new BUSPIN(x,y);
+                break;
+            case "BUSOUT":
+                newgate = new BUSOUT(x,y);
+                break;
             default:
                 //IC
                 if(type.startsWith("cc_")){
@@ -556,8 +578,25 @@ function doSafely(f,args){
     try{
         f(args);
     }catch(error){
-        UIkit.notification({message: error, status:"danger"});
+        generalErrorMessage(error);
     }
 
 
+}
+function generalErrorMessage(msg){
+    UIkit.notification({message: "<span uk-icon=\'icon: code\'></span> "+msg, status:"danger", timeout:NotificationTimeout})
+
+}
+
+function successMessage(msg){
+
+    UIkit.notification({message: "<span uk-icon=\'icon: check\'></span> "+msg, status:"success", timeout:NotificationTimeout});
+
+}
+function errorMessage(msg){
+    UIkit.notification({message: "<span uk-icon=\'icon: close\'></span> "+msg, status:"danger", timeout:NotificationTimeout})
+}
+
+function warningMessage(msg){
+    UIkit.notification({message: "<span uk-icon=\'icon: warning\'></span> "+msg, status:"warning", timeout:NotificationTimeout})
 }
